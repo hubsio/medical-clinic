@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/patients")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class PatientController {
     private final List<Patient> patients;
 
@@ -21,15 +22,12 @@ public class PatientController {
 
     @GetMapping("/{email}")
     public Patient getPatientByEmail(@PathVariable String email) {
-        Optional<Patient> findPatient = patients.stream()
-                .filter(patient -> patient.getEmail() != null && patient.getEmail().equals(email))
-                .findFirst();
+        Optional<Patient> findPatient = findPatientByEmail(email);
 
-        if (findPatient.isPresent()) {
-            return findPatient.get();
-        } else {
+        if (findPatient.isEmpty()) {
             throw new RuntimeException("Patient with applied email is not exciting");
         }
+        return findPatient.get();
     }
 
     @PostMapping
@@ -45,23 +43,30 @@ public class PatientController {
 
     @DeleteMapping("/{email}")
     public void deletePatientByEmail(@PathVariable String email) {
-        boolean removed = patients.removeIf(patient -> {
-            String patientEmail = patient.getEmail();
-            return patientEmail != null && patientEmail.equals(email);
-        });
+        Optional<Patient> patientToDelete = findPatientByEmail(email);
 
-        if (!removed) {
+        if (patientToDelete.isEmpty()) {
             throw new RuntimeException("Patient with the provided email does not exist");
         }
+
+        patients.remove(patientToDelete);
     }
 
     @PutMapping("/{email}")
     public Patient editPatientByEmail(@PathVariable String email, @RequestBody Patient editedPatient) {
-        Patient existingPatient = getPatientByEmail(email);
-        existingPatient.setFirstName(editedPatient.getFirstName());
-        existingPatient.setLastName(editedPatient.getLastName());
-        existingPatient.setPassword(editedPatient.getPassword());
-        existingPatient.setPhoneNumber(editedPatient.getPhoneNumber());
+        Optional<Patient> existingPatient = findPatientByEmail(email);
+        if (existingPatient.isEmpty()) {
+            throw new IllegalArgumentException("Patient with given email is not exists");
+        }
+        existingPatient.get().setFirstName(editedPatient.getFirstName());
+        existingPatient.get().setLastName(editedPatient.getLastName());
+        existingPatient.get().setPassword(editedPatient.getPassword());
+        existingPatient.get().setPhoneNumber(editedPatient.getPhoneNumber());
         return editedPatient;
+    }
+    private Optional<Patient> findPatientByEmail(String email) {
+        return patients.stream()
+                .filter(patient -> patient.getEmail().equals(email))
+                .findFirst();
     }
 }
