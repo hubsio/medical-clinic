@@ -64,6 +64,21 @@ public class PatientController {
         existingPatient.get().setPhoneNumber(editedPatient.getPhoneNumber());
         return editedPatient;
     }
+
+    @PatchMapping("/{email}/password")
+    public String updatePassword(@PathVariable String email, @RequestBody String newPassword) {
+        Patient existingPatient = findPatientByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Patient with given email does not exist"));
+
+        if (newPassword == null || newPassword.isEmpty()) {
+            throw new IllegalArgumentException("New password cannot be empty");
+        }
+        existingPatient.setPassword(newPassword);
+
+        return newPassword;
+}
+
+
     private Optional<Patient> findPatientByEmail(String email) {
         return patients.stream()
                 .filter(patient -> patient.getEmail().equals(email))
