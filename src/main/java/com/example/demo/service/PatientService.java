@@ -1,27 +1,24 @@
-package com.example.demo;
+package com.example.demo.service;
 
-import lombok.AllArgsConstructor;
+import com.example.demo.controller.PatientController;
+import com.example.demo.model.Patient;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@RestController
-@RequestMapping("/patients")
+@Service
 @RequiredArgsConstructor
-public class PatientController {
+public class PatientService {
     private final List<Patient> patients;
 
-    @GetMapping
     public List<Patient> getAllPatients() {
         return patients;
     }
 
-    @GetMapping("/{email}")
-    public Patient getPatientByEmail(@PathVariable String email) {
+    public Patient getPatientByEmail(String email) {
         Optional<Patient> findPatient = findPatientByEmail(email);
 
         if (findPatient.isEmpty()) {
@@ -36,24 +33,28 @@ public class PatientController {
         if (email != null && !email.isEmpty()) {
             throw new RuntimeException("Invalid email address");
         }
+        Optional<Patient> existingPatient = findPatientByEmail(email);
+        if (existingPatient.isPresent()) {
+            throw new RuntimeException("User with the provided email already exists");
+        }
 
         patients.add(patient);
         return patient;
     }
 
-    @DeleteMapping("/{email}")
-    public void deletePatientByEmail(@PathVariable String email) {
+
+    public void deletePatientByEmail(String email) {
         Optional<Patient> patientToDelete = findPatientByEmail(email);
 
         if (patientToDelete.isEmpty()) {
             throw new RuntimeException("Patient with the provided email does not exist");
         }
 
-        patients.remove(patientToDelete);
+        patients.remove(patientToDelete.get());
     }
 
-    @PutMapping("/{email}")
-    public Patient editPatientByEmail(@PathVariable String email, @RequestBody Patient editedPatient) {
+
+    public Patient editPatientByEmail(String email, Patient editedPatient) {
         Optional<Patient> existingPatient = findPatientByEmail(email);
         if (existingPatient.isEmpty()) {
             throw new IllegalArgumentException("Patient with given email is not exists");
@@ -76,8 +77,7 @@ public class PatientController {
         existingPatient.setPassword(newPassword);
 
         return newPassword;
-}
-
+    }
 
     private Optional<Patient> findPatientByEmail(String email) {
         return patients.stream()
@@ -85,3 +85,4 @@ public class PatientController {
                 .findFirst();
     }
 }
+
