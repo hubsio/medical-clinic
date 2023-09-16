@@ -3,7 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.model.Patient;
 import com.example.demo.service.PatientService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
+
 import org.springframework.web.bind.annotation.*;
 
 
