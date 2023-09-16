@@ -14,21 +14,23 @@ public class PatientRepositoryImpl implements PatientRepository {
 
     @Override
     public List<Patient> getAllPatients() {
-        return null;
+        return new ArrayList<>(patients);
     }
 
     @Override
     public Optional<Patient> findByEmail(String email) {
-        return Optional.empty();
+        return patients.stream()
+                .filter(patient -> patient.getEmail().equals(email))
+                .findFirst();
     }
 
     @Override
     public void save(Patient patient) {
-
+        patients.add(patient);
     }
 
     @Override
     public void delete(Patient patient) {
-
+        patients.remove(patient);
     }
 }
