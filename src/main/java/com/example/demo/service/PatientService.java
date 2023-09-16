@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.controller.PatientController;
+
 import com.example.demo.model.Patient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,12 +19,8 @@ public class PatientService {
     }
 
     public Patient getPatientByEmail(String email) {
-        Optional<Patient> findPatient = findPatientByEmail(email);
-
-        if (findPatient.isEmpty()) {
-            throw new RuntimeException("Patient with applied email is not exciting");
-        }
-        return findPatient.get();
+        return findPatientByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Patient with the provided email does not exist"));
     }
 
     @PostMapping
@@ -42,27 +38,20 @@ public class PatientService {
         return patient;
     }
 
-
     public void deletePatientByEmail(String email) {
-        Optional<Patient> patientToDelete = findPatientByEmail(email);
+        Patient patientToDelete = findPatientByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Patient with the provided email does not exist"));
 
-        if (patientToDelete.isEmpty()) {
-            throw new RuntimeException("Patient with the provided email does not exist");
-        }
-
-        patients.remove(patientToDelete.get());
+        patients.remove(patientToDelete);
     }
 
-
     public Patient editPatientByEmail(String email, Patient editedPatient) {
-        Optional<Patient> existingPatient = findPatientByEmail(email);
-        if (existingPatient.isEmpty()) {
-            throw new IllegalArgumentException("Patient with given email is not exists");
-        }
-        existingPatient.get().setFirstName(editedPatient.getFirstName());
-        existingPatient.get().setLastName(editedPatient.getLastName());
-        existingPatient.get().setPassword(editedPatient.getPassword());
-        existingPatient.get().setPhoneNumber(editedPatient.getPhoneNumber());
+        Patient existingPatient = findPatientByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Patient with given email does not exist"));
+        existingPatient.setFirstName(editedPatient.getFirstName());
+        existingPatient.setLastName(editedPatient.getLastName());
+        existingPatient.setPassword(editedPatient.getPassword());
+        existingPatient.setPhoneNumber(editedPatient.getPhoneNumber());
         return editedPatient;
     }
 
