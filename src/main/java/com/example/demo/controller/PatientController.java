@@ -38,13 +38,11 @@ public class PatientController {
 
     @PutMapping("/{email}")
     public Patient editPatientByEmail(@PathVariable String email, @RequestBody Patient editedPatient) {
-
         return patientService.editPatientByEmail(email, editedPatient);
     }
 
     @PatchMapping("/{email}/password")
     public String updatePassword(@PathVariable String email, @RequestBody String newPassword) {
-
         return patientService.updatePassword(email, newPassword);
     }
 }
