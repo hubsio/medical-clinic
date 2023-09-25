@@ -4,9 +4,11 @@ package com.example.demo.service;
 import com.example.demo.model.Patient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -23,7 +25,6 @@ public class PatientService {
                 .orElseThrow(() -> new RuntimeException("Patient with the provided email does not exist"));
     }
 
-    @PostMapping
     public Patient addNewPatient(@RequestBody Patient patient) {
         String email = patient.getEmail();
         if (email != null && !email.isEmpty()) {
@@ -55,7 +56,6 @@ public class PatientService {
         return editedPatient;
     }
 
-    @PatchMapping("/{email}/password")
     public String updatePassword(@PathVariable String email, @RequestBody String newPassword) {
         Patient existingPatient = findPatientByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Patient with given email does not exist"));
