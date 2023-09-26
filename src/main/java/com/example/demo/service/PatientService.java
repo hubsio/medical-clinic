@@ -5,11 +5,14 @@ import com.example.demo.exception.InvalidEmailException;
 import com.example.demo.exception.PatientNotFoundException;
 import com.example.demo.exception.UserAlreadyExistsException;
 import com.example.demo.model.Patient;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -76,5 +79,9 @@ public class PatientService {
                 .filter(patient -> patient.getEmail().equals(email))
                 .findFirst();
     }
+//    @PostConstruct
+//    public void init() {
+//        patients.add(new Patient("hubert@gmail.com", "password", "123456", "Hubert", "Nowak", "123456789", LocalDate.of(1990, 5, 15)));    }
+
 }
 

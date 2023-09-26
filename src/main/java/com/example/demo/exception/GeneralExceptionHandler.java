@@ -22,7 +22,7 @@ public class GeneralExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    @ExceptionHandler(UnknownException.class)
+    @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleUnknownException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown error");
     }
