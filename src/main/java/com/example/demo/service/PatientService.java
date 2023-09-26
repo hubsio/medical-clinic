@@ -28,9 +28,9 @@ public class PatientService {
                 .orElseThrow(() -> new PatientNotFoundException("Patient with the provided email does not exist"));
     }
 
-    public Patient addNewPatient(@RequestBody Patient patient) {
+    public Patient addNewPatient(Patient patient) {
         String email = patient.getEmail();
-        if (email != null && !email.isEmpty()) {
+        if (email == null || email.isEmpty()) {
             throw new InvalidEmailException("Invalid email address");
         }
         Optional<Patient> existingPatient = findPatientByEmail(email);
