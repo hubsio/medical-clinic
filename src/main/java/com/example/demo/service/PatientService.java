@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 
+import com.example.demo.exception.IllegalUserIdChangeException;
 import com.example.demo.exception.InvalidEmailException;
 import com.example.demo.exception.PatientNotFoundException;
 import com.example.demo.exception.UserAlreadyExistsException;
@@ -55,10 +56,23 @@ public class PatientService {
     public Patient editPatientByEmail(String email, Patient editedPatient) {
         Patient existingPatient = findPatientByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with given email does not exist"));
+
+        if (!existingPatient.getIdCardNo().equals(editedPatient.getIdCardNo())) {
+            throw new IllegalUserIdChangeException("Changing ID number is not allowed");
+        }
+
+        if (editedPatient.getFirstName() == null ||
+                editedPatient.getLastName() == null ||
+                editedPatient.getPassword() == null ||
+                editedPatient.getPhoneNumber() == null) {
+            throw new IllegalArgumentException("Patient data cannot be null");
+        }
+
         existingPatient.setFirstName(editedPatient.getFirstName());
         existingPatient.setLastName(editedPatient.getLastName());
         existingPatient.setPassword(editedPatient.getPassword());
         existingPatient.setPhoneNumber(editedPatient.getPhoneNumber());
+
         return editedPatient;
     }
 
@@ -79,9 +93,5 @@ public class PatientService {
                 .filter(patient -> patient.getEmail().equals(email))
                 .findFirst();
     }
-//    @PostConstruct
-//    public void init() {
-//        patients.add(new Patient("hubert@gmail.com", "password", "123456", "Hubert", "Nowak", "123456789", LocalDate.of(1990, 5, 15)));    }
-
 }
 

@@ -23,7 +23,11 @@ public class GeneralExceptionHandler {
     }
 
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleUnknownException(Exception ex) {
+    public ResponseEntity<String> handleRuntimeException(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown error");
+    }
+    @ExceptionHandler(IllegalUserIdChangeException.class)
+    public ResponseEntity<String> handleIllegalUserIdChangeException(IllegalUserIdChangeException ex) {
+        return ResponseEntity.status(HttpStatus.LOCKED).body(ex.getMessage());
     }
 }
