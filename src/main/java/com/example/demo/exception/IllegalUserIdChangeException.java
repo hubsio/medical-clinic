@@ -4,6 +4,6 @@ import org.springframework.http.HttpStatus;
 
 public class IllegalUserIdChangeException extends MediaclException {
     public IllegalUserIdChangeException(String message) {
-        super(message, HttpStatus.LOCKED);
+        super(message, HttpStatus.BAD_REQUEST);
     }
 }
