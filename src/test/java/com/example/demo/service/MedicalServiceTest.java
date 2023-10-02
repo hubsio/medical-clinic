@@ -82,7 +82,7 @@ public class MedicalServiceTest {
     }
 
     @Test
-    void addNewPatient_addingPatients_shouldReturnNewPatient() { //przeanalizowac
+    void addNewPatient_addingPatients_shouldReturnNewPatient() {
         String email = "dupa@gmail.com";
         Patient patient = new Patient(email, "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
 
