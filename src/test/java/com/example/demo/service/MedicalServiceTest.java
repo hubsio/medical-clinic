@@ -82,7 +82,7 @@ public class MedicalServiceTest {
     }
 
     @Test
-    void addNewPatient_addingPatients_shouldReturnNewPatientx2() { //przeanalizowac
+    void addNewPatient_addingPatients_shouldReturnNewPatient() { //przeanalizowac
         String email = "dupa@gmail.com";
         Patient patient = new Patient(email, "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
 
@@ -105,15 +105,15 @@ public class MedicalServiceTest {
         Patient existingPatient = new Patient("dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
         Patient editedPatient = new Patient("dupa1@gmail.com", "123456", "1234567", "Romek", "Janusz", "462352432", LocalDate.of(1920, 10, 1));
 
-        when(patientRepository.findByEmail("dupa@gmial.com")).thenReturn(Optional.of(existingPatient));
+        when(patientRepository.findByEmail("dupa@gmail.com")).thenReturn(Optional.of(existingPatient));
 
-        Patient updates = patientService.editPatientByEmail("dupa@gmial.com", editedPatient);
+        Patient updates = patientService.editPatientByEmail("dupa@gmail.com", editedPatient);
 
         assertEquals("dupa1@gmail.com", updates.getEmail());
-        assertEquals("123456", existingPatient.getPassword());
-        assertEquals("Romek", existingPatient.getFirstName());
-        assertEquals("Janusz", existingPatient.getLastName());
-        assertEquals("462352432", existingPatient.getPhoneNumber());
+        assertEquals("123456", updates.getPassword());
+        assertEquals("Romek", updates.getFirstName());
+        assertEquals("Janusz", updates.getLastName());
+        assertEquals("462352432", updates.getPhoneNumber());
     }
 
     @Test
@@ -122,10 +122,10 @@ public class MedicalServiceTest {
         String newPassword = "newpassword";
         Patient existingPatient = new Patient(email, "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
 
-        when(patientRepository.findByEmail("dupa@gmail.com")).thenReturn(Optional.of(existingPatient));
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(existingPatient));
 
-        String updatedPassword = patientService.updatePassword(email, newPassword);
+        String result = patientService.updatePassword(email, newPassword);
 
-        assertEquals(newPassword, updatedPassword);
+        assertEquals(newPassword, result);
     }
 }
