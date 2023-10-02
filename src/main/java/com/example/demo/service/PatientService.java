@@ -6,6 +6,7 @@ import com.example.demo.exception.InvalidEmailException;
 import com.example.demo.exception.PatientNotFoundException;
 import com.example.demo.exception.UserAlreadyExistsException;
 import com.example.demo.model.Patient;
+import com.example.demo.repository.PatientRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,14 +22,14 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PatientService {
-    private final List<Patient> patients;
+    private final PatientRepository patientRepository;
 
     public List<Patient> getAllPatients() {
-        return patients;
+        return patientRepository.getAllPatients();
     }
 
     public Patient getPatientByEmail(String email) {
-        return findPatientByEmail(email)
+        return patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with the provided email does not exist"));
     }
 
@@ -37,24 +38,24 @@ public class PatientService {
         if (email == null || email.isEmpty()) {
             throw new InvalidEmailException("Invalid email address");
         }
-        Optional<Patient> existingPatient = findPatientByEmail(email);
+        Optional<Patient> existingPatient = patientRepository.findByEmail(email);
         if (existingPatient.isPresent()) {
             throw new UserAlreadyExistsException("User with the provided email already exists");
         }
 
-        patients.add(patient);
+        patientRepository.save(patient);
         return patient;
     }
 
     public void deletePatientByEmail(String email) {
-        Patient patientToDelete = findPatientByEmail(email)
+        Patient patientToDelete = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with the provided email does not exist"));
 
-        patients.remove(patientToDelete);
+        patientRepository.delete(patientToDelete);
     }
 
     public Patient editPatientByEmail(String email, Patient editedPatient) {
-        Patient existingPatient = findPatientByEmail(email)
+        Patient existingPatient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with given email does not exist"));
 
         if (!existingPatient.getIdCardNo().equals(editedPatient.getIdCardNo())) {
@@ -77,7 +78,7 @@ public class PatientService {
     }
 
     public String updatePassword(@PathVariable String email, @RequestBody String newPassword) {
-        Patient existingPatient = findPatientByEmail(email)
+        Patient existingPatient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with given email does not exist"));
 
         if (newPassword == null || newPassword.isEmpty()) {
@@ -86,12 +87,6 @@ public class PatientService {
         existingPatient.setPassword(newPassword);
 
         return newPassword;
-    }
-
-    private Optional<Patient> findPatientByEmail(String email) {
-        return patients.stream()
-                .filter(patient -> patient.getEmail().equals(email))
-                .findFirst();
     }
 }
 

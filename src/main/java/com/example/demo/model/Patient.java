@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Patient {
     private String email;
     private String password;
