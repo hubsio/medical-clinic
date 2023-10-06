@@ -49,28 +49,34 @@ public class PatientControllerTest {
     @Autowired
     private PatientRepository patientRepository;
     private Patient samplePatient;
+
+    Patient patient = new Patient("dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
     @BeforeEach
     public void setUp() {
-        samplePatient = new Patient("dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
-        patientRepository.save(samplePatient);
+        Optional<Patient> samplePatient = patientRepository.findByEmail(patient.getEmail());
+        if (samplePatient.isEmpty()) {
+            patientRepository.save(patient);
+        }
     }
     @Test
     void getAllPatientsTest() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get("/patients")
                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].email").value(samplePatient.getEmail()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].firstName").value(samplePatient.getFirstName()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].lastName").value(samplePatient.getLastName()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].phoneNumber").value(samplePatient.getPhoneNumber()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].email").value(patient.getEmail()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].firstName").value(patient.getFirstName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].lastName").value(patient.getLastName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].phoneNumber").value(patient.getPhoneNumber()));
 
     }
     @Test
     void getPatientByEmailTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/patients/{email}", samplePatient.getEmail())
+        mockMvc.perform(MockMvcRequestBuilders.get("/patients/{email}", patient.getEmail())
                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(samplePatient.getEmail()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(patient.getEmail()));
     }
     @Test
     void addNewPatientTest() throws Exception {
@@ -84,8 +90,9 @@ public class PatientControllerTest {
 
     @Test
     void deletePatientByEmailTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/patients/{email}", samplePatient.getEmail())
+        mockMvc.perform(MockMvcRequestBuilders.delete("/patients/{email}", patient.getEmail())
                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk());
     }
 
@@ -93,9 +100,10 @@ public class PatientControllerTest {
     void editPatientByEmailTest() throws Exception {
         Patient editedPatient = new Patient("edited@example.com", "newpassword", "1234567", "Edited", "Patient", "987-654-321", LocalDate.of(1985, 6, 15));
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/patients/{email}", samplePatient.getEmail())
+        mockMvc.perform(MockMvcRequestBuilders.put("/patients/{email}", patient.getEmail())
                 .content(objectMapper.writeValueAsString(editedPatient))
                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(editedPatient.getEmail()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value(editedPatient.getFirstName()))
@@ -107,9 +115,10 @@ public class PatientControllerTest {
     void updatePasswordTest() throws Exception {
         Patient editedPatient = new Patient("edited@example.com", "newpassword", "1234567", "Edited", "Patient", "987-654-321", LocalDate.of(1985, 6, 15));
 
-        mockMvc.perform(MockMvcRequestBuilders.patch("/patients/{email}/password", samplePatient.getEmail())
+        mockMvc.perform(MockMvcRequestBuilders.patch("/patients/{email}/password", patient.getEmail())
                 .content(editedPatient.getPassword())
                 .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(editedPatient.getPassword()));
 
