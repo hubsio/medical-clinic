@@ -8,6 +8,7 @@ import com.example.demo.exception.UserAlreadyExistsException;
 import com.example.demo.model.Patient;
 import com.example.demo.repository.PatientRepository;
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -25,7 +26,7 @@ public class PatientService {
     private final PatientRepository patientRepository;
 
     public List<Patient> getAllPatients() {
-        return patientRepository.getAllPatients();
+        return patientRepository.findAll();
     }
 
     public Patient getPatientByEmail(String email) {
@@ -33,6 +34,7 @@ public class PatientService {
                 .orElseThrow(() -> new PatientNotFoundException("Patient with the provided email does not exist"));
     }
 
+    @Transactional
     public Patient addNewPatient(Patient patient) {
         String email = patient.getEmail();
         if (email == null || email.isEmpty()) {
@@ -47,6 +49,7 @@ public class PatientService {
         return patient;
     }
 
+    @Transactional
     public void deletePatientByEmail(String email) {
         Patient patientToDelete = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with the provided email does not exist"));
@@ -54,6 +57,7 @@ public class PatientService {
         patientRepository.delete(patientToDelete);
     }
 
+    @Transactional
     public Patient editPatientByEmail(String email, Patient editedPatient) {
         Patient existingPatient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with given email does not exist"));
@@ -74,9 +78,12 @@ public class PatientService {
         existingPatient.setPassword(editedPatient.getPassword());
         existingPatient.setPhoneNumber(editedPatient.getPhoneNumber());
 
-        return editedPatient;
+        patientRepository.save(existingPatient);
+
+        return existingPatient;
     }
 
+    @Transactional
     public String updatePassword(@PathVariable String email, @RequestBody String newPassword) {
         Patient existingPatient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with given email does not exist"));
@@ -85,6 +92,7 @@ public class PatientService {
             throw new InvalidEmailException("New password cannot be empty");
         }
         existingPatient.setPassword(newPassword);
+        patientRepository.save(existingPatient);
 
         return newPassword;
     }

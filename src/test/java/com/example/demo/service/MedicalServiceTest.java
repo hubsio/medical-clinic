@@ -50,10 +50,10 @@ public class MedicalServiceTest {
     @Test
     void getAllPatients_existingPatients_shouldReturnPatients() {
         List<Patient> expectedPatients = new ArrayList<>();
-        expectedPatients.add(new Patient("dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11)));
-        expectedPatients.add(new Patient("lol@gmail.com", "123432", "13464367", "Krzychu", "Janusz", "987-654-321", LocalDate.of(1910, 12, 11)));
+        expectedPatients.add(new Patient(13L,"dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11)));
+        expectedPatients.add(new Patient(14L, "lol@gmail.com", "123432", "13464367", "Krzychu", "Janusz", "987-654-321", LocalDate.of(1910, 12, 11)));
 
-        when(patientRepository.getAllPatients()).thenReturn(expectedPatients);
+        when(patientRepository.findAll()).thenReturn(expectedPatients);
 
         List<Patient> result = patientService.getAllPatients();
 
@@ -77,7 +77,7 @@ public class MedicalServiceTest {
 
     @Test
     void deletePatientByEmail_existingPatients_getPatients() {
-        Patient patient = new Patient("dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        Patient patient = new Patient(1L,"dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
 
         when(patientRepository.findByEmail("dupa@gmail.com")).thenReturn(Optional.of(patient));
 
@@ -89,7 +89,7 @@ public class MedicalServiceTest {
     @Test
     void addNewPatient_addingPatients_shouldReturnNewPatient() {
         String email = "dupa@gmail.com";
-        Patient patient = new Patient(email, "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        Patient patient = new Patient(1L, email, "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
 
         when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
 
@@ -107,8 +107,8 @@ public class MedicalServiceTest {
 
     @Test
     void editPatientByEmail_givenValidInput_shouldEditPatient() {
-        Patient existingPatient = new Patient("dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
-        Patient editedPatient = new Patient("dupa1@gmail.com", "123456", "1234567", "Romek", "Janusz", "462352432", LocalDate.of(1920, 10, 1));
+        Patient existingPatient = new Patient(1L,"dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        Patient editedPatient = new Patient(2L,"dupa1@gmail.com", "123456", "1234567", "Romek", "Janusz", "462352432", LocalDate.of(1920, 10, 1));
 
         when(patientRepository.findByEmail("dupa@gmail.com")).thenReturn(Optional.of(existingPatient));
 
@@ -125,7 +125,7 @@ public class MedicalServiceTest {
     void updatePassword_existingPatient_shouldUpdatePassword() {
         String email = "dupa@gmail.com";
         String newPassword = "newpassword";
-        Patient existingPatient = new Patient(email, "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        Patient existingPatient = new Patient(3L, email, "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
 
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(existingPatient));
 
@@ -145,7 +145,7 @@ public class MedicalServiceTest {
 
     @Test
     void addNewPatient_emptyEmail_shouldThrowException() {
-        Patient patient = new Patient("", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        Patient patient = new Patient(4L,"", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
 
         InvalidEmailException exception = assertThrows(InvalidEmailException.class, () -> patientService.addNewPatient(patient));
 
@@ -154,7 +154,7 @@ public class MedicalServiceTest {
 
     @Test
     void addNewPatient_existingEmail_shouldThrowException() {
-        Patient patient = new Patient("dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        Patient patient = new Patient(5L, "dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
 
         when(patientRepository.findByEmail("dupa@gmail.com")).thenReturn(Optional.of(patient));
 
@@ -190,8 +190,8 @@ public class MedicalServiceTest {
 
     @Test
     void editPatientByEmail_differentIdCardNo_shouldThrowException() {
-        Patient existingPatient = new Patient("dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
-        Patient editiedPatient = new Patient("dupa@gmail.com", "123", "19876", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        Patient existingPatient = new Patient(6L,"dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        Patient editiedPatient = new Patient(7L,"dupa@gmail.com", "123", "19876", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
 
         when(patientRepository.findByEmail(existingPatient.getEmail())).thenReturn(Optional.of(existingPatient));
 
@@ -202,8 +202,8 @@ public class MedicalServiceTest {
 
     @Test
     void editPatientByEmail_nullFields_shouldThrowException() {
-        Patient existingPatient = new Patient("dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
-        Patient editedPatient = new Patient("dupa@gmail.com", null, "1234567", null, null, null, LocalDate.of(1910, 12, 11));
+        Patient existingPatient = new Patient(8L,"dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        Patient editedPatient = new Patient(9L,"dupa@gmail.com", null, "1234567", null, null, null, LocalDate.of(1910, 12, 11));
 
         when(patientRepository.findByEmail(existingPatient.getEmail())).thenReturn(Optional.of(existingPatient));
 
@@ -228,7 +228,7 @@ public class MedicalServiceTest {
     void updatePassword_emptyNewPassword_shouldThrowException() {
         String email = "dupa@gmail.com";
         String newPassword = "";
-        Patient existingPatient = new Patient(email, newPassword, "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        Patient existingPatient = new Patient(10L, email, newPassword, "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
 
         when(patientRepository.findByEmail(email)).thenReturn(Optional.of(existingPatient));
 
