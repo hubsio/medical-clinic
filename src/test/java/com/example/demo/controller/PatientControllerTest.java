@@ -50,7 +50,7 @@ public class PatientControllerTest {
     private PatientRepository patientRepository;
     private Patient samplePatient;
 
-    Patient patient = new Patient("dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+    Patient patient = new Patient(1L, "dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
     @BeforeEach
     public void setUp() {
         Optional<Patient> samplePatient = patientRepository.findByEmail(patient.getEmail());
@@ -80,7 +80,7 @@ public class PatientControllerTest {
     }
     @Test
     void addNewPatientTest() throws Exception {
-        Patient newPatient = new Patient("newpatient@example.com", "password", "987654321", "John", "Doe", "987-654-321", LocalDate.of(1990, 5, 20));
+        Patient newPatient = new Patient(2L, "newpatient@example.com", "password", "987654321", "John", "Doe", "987-654-321", LocalDate.of(1990, 5, 20));
         mockMvc.perform(MockMvcRequestBuilders.post("/patients")
                 .content(objectMapper.writeValueAsString(newPatient))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -98,7 +98,7 @@ public class PatientControllerTest {
 
     @Test
     void editPatientByEmailTest() throws Exception {
-        Patient editedPatient = new Patient("edited@example.com", "newpassword", "1234567", "Edited", "Patient", "987-654-321", LocalDate.of(1985, 6, 15));
+        Patient editedPatient = new Patient(1L, "edited@example.com", "newpassword", "1234567", "Edited", "Patient", "987-654-321", LocalDate.of(1985, 6, 15));
 
         mockMvc.perform(MockMvcRequestBuilders.put("/patients/{email}", patient.getEmail())
                 .content(objectMapper.writeValueAsString(editedPatient))
@@ -113,7 +113,7 @@ public class PatientControllerTest {
     }
     @Test
     void updatePasswordTest() throws Exception {
-        Patient editedPatient = new Patient("edited@example.com", "newpassword", "1234567", "Edited", "Patient", "987-654-321", LocalDate.of(1985, 6, 15));
+        Patient editedPatient = new Patient(1L,"edited@example.com", "newpassword", "1234567", "Edited", "Patient", "987-654-321", LocalDate.of(1985, 6, 15));
 
         mockMvc.perform(MockMvcRequestBuilders.patch("/patients/{email}/password", patient.getEmail())
                 .content(editedPatient.getPassword())

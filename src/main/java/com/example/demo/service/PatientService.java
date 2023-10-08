@@ -25,7 +25,7 @@ public class PatientService {
     private final PatientRepository patientRepository;
 
     public List<Patient> getAllPatients() {
-        return patientRepository.getAllPatients();
+        return patientRepository.findAll();
     }
 
     public Patient getPatientByEmail(String email) {
@@ -74,7 +74,9 @@ public class PatientService {
         existingPatient.setPassword(editedPatient.getPassword());
         existingPatient.setPhoneNumber(editedPatient.getPhoneNumber());
 
-        return editedPatient;
+        patientRepository.save(existingPatient);
+
+        return existingPatient;
     }
 
     public String updatePassword(@PathVariable String email, @RequestBody String newPassword) {
@@ -85,6 +87,7 @@ public class PatientService {
             throw new InvalidEmailException("New password cannot be empty");
         }
         existingPatient.setPassword(newPassword);
+        patientRepository.save(existingPatient);
 
         return newPassword;
     }
