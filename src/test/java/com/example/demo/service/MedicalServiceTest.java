@@ -5,21 +5,20 @@ import com.example.demo.exception.InvalidEmailException;
 import com.example.demo.exception.PatientNotFoundException;
 import com.example.demo.exception.UserAlreadyExistsException;
 import com.example.demo.model.Patient;
+import com.example.demo.model.dto.PatientDTO;
+import com.example.demo.model.mapper.PatientMapper;
 import com.example.demo.repository.PatientRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.awt.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
-import static java.util.Optional.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -40,11 +39,11 @@ public class MedicalServiceTest {
 
         when(patientRepository.findByEmail("dupa@gmail.com")).thenReturn(Optional.of(patient));
 
-        Patient actualPatient = patientService.getPatientByEmail("dupa@gmail.com");
+        PatientDTO expectedPatientDTO = PatientMapper.convertToDTO(patient);
 
-        assertEquals("dupa@gmail.com", actualPatient.getEmail());
-        assertEquals("Hubert", actualPatient.getFirstName());
-        assertEquals("Nowak", actualPatient.getLastName());
+        PatientDTO actualPatient = patientService.getPatientByEmail("dupa@gmail.com");
+
+        assertEquals(expectedPatientDTO, actualPatient);
     }
 
     @Test
@@ -55,24 +54,19 @@ public class MedicalServiceTest {
 
         when(patientRepository.findAll()).thenReturn(expectedPatients);
 
-        List<Patient> result = patientService.getAllPatients();
+        List<PatientDTO> result = patientService.getAllPatients();
 
         assertEquals(2, result.size());
         assertEquals("dupa@gmail.com", result.get(0).getEmail());
-        assertEquals("123", result.get(0).getPassword());
-        assertEquals("1234567", result.get(0).getIdCardNo());
         assertEquals("Tomek", result.get(0).getFirstName());
         assertEquals("Nowak", result.get(0).getLastName());
         assertEquals("123-456-789", result.get(0).getPhoneNumber());
-        assertEquals(LocalDate.of(1910, 12, 11), result.get(0).getBirthday());
 
         assertEquals("lol@gmail.com", result.get(1).getEmail());
-        assertEquals("123432", result.get(1).getPassword());
-        assertEquals("13464367", result.get(1).getIdCardNo());
         assertEquals("Krzychu", result.get(1).getFirstName());
         assertEquals("Janusz", result.get(1).getLastName());
         assertEquals("987-654-321", result.get(1).getPhoneNumber());
-        assertEquals(LocalDate.of(1910, 12, 11), result.get(0).getBirthday());
+
     }
 
     @Test
@@ -93,29 +87,25 @@ public class MedicalServiceTest {
 
         when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        Patient result = patientService.addNewPatient(patient);
+        PatientDTO result = patientService.addNewPatient(patient);
 
         assertEquals("dupa@gmail.com", result.getEmail());
-        assertEquals("123", result.getPassword());
-        assertEquals("1234567", result.getIdCardNo());
         assertEquals("Tomek", result.getFirstName());
         assertEquals("Nowak", result.getLastName());
         assertEquals("123-456-789", result.getPhoneNumber());
-        assertEquals(LocalDate.of(1910, 12, 11), result.getBirthday());
         verify(patientRepository, times(1)).save(patient);
     }
 
     @Test
     void editPatientByEmail_givenValidInput_shouldEditPatient() {
         Patient existingPatient = new Patient(1L,"dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
-        Patient editedPatient = new Patient(2L,"dupa1@gmail.com", "123456", "1234567", "Romek", "Janusz", "462352432", LocalDate.of(1920, 10, 1));
+        Patient editedPatient = new Patient(2L,"dupa@gmail.com", "123456", "1234567", "Romek", "Janusz", "462352432", LocalDate.of(1920, 10, 1));
 
         when(patientRepository.findByEmail("dupa@gmail.com")).thenReturn(Optional.of(existingPatient));
 
-        Patient updates = patientService.editPatientByEmail("dupa@gmail.com", editedPatient);
+        PatientDTO updates = patientService.editPatientByEmail("dupa@gmail.com", editedPatient);
 
-        assertEquals("dupa1@gmail.com", updates.getEmail());
-        assertEquals("123456", updates.getPassword());
+        assertEquals("dupa@gmail.com", updates.getEmail());
         assertEquals("Romek", updates.getFirstName());
         assertEquals("Janusz", updates.getLastName());
         assertEquals("462352432", updates.getPhoneNumber());
@@ -125,9 +115,9 @@ public class MedicalServiceTest {
     void updatePassword_existingPatient_shouldUpdatePassword() {
         String email = "dupa@gmail.com";
         String newPassword = "newpassword";
-        Patient existingPatient = new Patient(3L, email, "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        PatientDTO existingPatient = new PatientDTO("dupa@gmail.com", "Tomek", "Nowak", "123-456-789");
 
-        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(existingPatient));
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(PatientMapper.convertToEntity(existingPatient)));
 
         String result = patientService.updatePassword(email, newPassword);
 

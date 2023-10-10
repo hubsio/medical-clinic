@@ -1,13 +1,12 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Patient;
+import com.example.demo.model.dto.PatientDTO;
 import com.example.demo.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/patients")
@@ -16,17 +15,17 @@ public class PatientController {
     private final PatientService patientService;
 
     @GetMapping
-    public List<Patient> getAllPatients() {
+    public List<PatientDTO> getAllPatients() {
         return patientService.getAllPatients();
     }
 
     @GetMapping("/{email}")
-    public Patient getPatientByEmail(@PathVariable String email) {
+    public PatientDTO getPatientByEmail(@PathVariable String email) {
         return patientService.getPatientByEmail(email);
     }
 
     @PostMapping
-    public Patient addNewPatient(@RequestBody Patient patient) {
+    public PatientDTO addNewPatient(@RequestBody Patient patient) {
         return patientService.addNewPatient(patient);
     }
 
@@ -36,7 +35,7 @@ public class PatientController {
     }
 
     @PutMapping("/{email}")
-    public Patient editPatientByEmail(@PathVariable String email, @RequestBody Patient editedPatient) {
+    public PatientDTO editPatientByEmail(@PathVariable String email, @RequestBody Patient editedPatient) {
         return patientService.editPatientByEmail(email, editedPatient);
     }
 
