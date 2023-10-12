@@ -66,7 +66,6 @@ public class MedicalServiceTest {
         assertEquals("Krzychu", result.get(1).getFirstName());
         assertEquals("Janusz", result.get(1).getLastName());
         assertEquals("987-654-321", result.get(1).getPhoneNumber());
-
     }
 
     @Test
@@ -151,7 +150,6 @@ public class MedicalServiceTest {
         UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> patientService.addNewPatient(patient));
 
         assertEquals("User with the provided email already exists", exception.getMessage());
-
     }
 
     @Test
@@ -163,7 +161,6 @@ public class MedicalServiceTest {
         PatientNotFoundException exception = assertThrows(PatientNotFoundException.class, () -> patientService.deletePatientByEmail(email));
 
         assertEquals("Patient with the provided email does not exist", exception.getMessage());
-
     }
 
     @Test
@@ -225,6 +222,5 @@ public class MedicalServiceTest {
         InvalidEmailException exception = assertThrows(InvalidEmailException.class, () -> patientService.updatePassword(email, newPassword));
 
         assertEquals("New password cannot be empty", exception.getMessage());
-
     }
 }

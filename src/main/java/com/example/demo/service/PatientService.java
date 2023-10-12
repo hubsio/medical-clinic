@@ -26,7 +26,7 @@ public class PatientService {
 
     public List<PatientDTO> getAllPatients() {
         return patientRepository.findAll().stream()
-                .map(this::changeToDto)
+                .map(PatientMapper::convertToDTO)
                 .collect(Collectors.toList());
     }
 
@@ -96,15 +96,6 @@ public class PatientService {
 
         patientRepository.save(existingPatient);
         return newPassword;
-    }
-
-    private PatientDTO changeToDto(Patient patient) {
-        PatientDTO patientDto = new PatientDTO();
-        patientDto.setEmail(patient.getEmail());
-        patientDto.setFirstName(patient.getFirstName());
-        patientDto.setLastName(patient.getLastName());
-        patientDto.setPhoneNumber(patient.getPhoneNumber());
-        return patientDto;
     }
 }
 
