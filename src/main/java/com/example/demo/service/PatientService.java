@@ -6,36 +6,38 @@ import com.example.demo.exception.InvalidEmailException;
 import com.example.demo.exception.PatientNotFoundException;
 import com.example.demo.exception.UserAlreadyExistsException;
 import com.example.demo.model.Patient;
+import com.example.demo.model.dto.PatientDTO;
+import com.example.demo.model.mapper.PatientMapper;
 import com.example.demo.repository.PatientRepository;
-import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PatientService {
     private final PatientRepository patientRepository;
 
-    public List<Patient> getAllPatients() {
-        return patientRepository.findAll();
+    public List<PatientDTO> getAllPatients() {
+        return patientRepository.findAll().stream()
+                .map(PatientMapper::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Patient getPatientByEmail(String email) {
-        return patientRepository.findByEmail(email)
+    public PatientDTO getPatientByEmail(String email) {
+        Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with the provided email does not exist"));
+        return PatientMapper.convertToDTO(patient);
     }
 
     @Transactional
-    public Patient addNewPatient(Patient patient) {
+    public PatientDTO addNewPatient(Patient patient) {
         String email = patient.getEmail();
         if (email == null || email.isEmpty()) {
             throw new InvalidEmailException("Invalid email address");
@@ -46,7 +48,7 @@ public class PatientService {
         }
 
         patientRepository.save(patient);
-        return patient;
+        return PatientMapper.convertToDTO(patient);
     }
 
     @Transactional
@@ -58,7 +60,7 @@ public class PatientService {
     }
 
     @Transactional
-    public Patient editPatientByEmail(String email, Patient editedPatient) {
+    public PatientDTO editPatientByEmail(String email, Patient editedPatient) {
         Patient existingPatient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with given email does not exist"));
 
@@ -79,8 +81,7 @@ public class PatientService {
         existingPatient.setPhoneNumber(editedPatient.getPhoneNumber());
 
         patientRepository.save(existingPatient);
-
-        return existingPatient;
+        return PatientMapper.convertToDTO(existingPatient);
     }
 
     @Transactional
@@ -92,8 +93,8 @@ public class PatientService {
             throw new InvalidEmailException("New password cannot be empty");
         }
         existingPatient.setPassword(newPassword);
-        patientRepository.save(existingPatient);
 
+        patientRepository.save(existingPatient);
         return newPassword;
     }
 }
