@@ -8,10 +8,12 @@ import com.example.demo.model.Patient;
 import com.example.demo.model.dto.PatientDTO;
 import com.example.demo.model.mapper.PatientMapper;
 import com.example.demo.repository.PatientRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
@@ -23,12 +25,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 public class MedicalServiceTest {
-    @Mock
     PatientRepository patientRepository;
-    @InjectMocks
     PatientService patientService;
+    PatientMapper patientMapper;
+    @BeforeEach
+    void setUp() {
+        this.patientRepository = Mockito.mock(PatientRepository.class);
+        this.patientMapper = PatientMapper.INSTANCE;
+        this.patientService = new PatientService(patientRepository, patientMapper);
+    }
 
     @Test
     void getPatientByEmail_existingPatient_shouldReturnPatient() {
@@ -39,7 +45,7 @@ public class MedicalServiceTest {
 
         when(patientRepository.findByEmail("dupa@gmail.com")).thenReturn(Optional.of(patient));
 
-        PatientDTO expectedPatientDTO = PatientMapper.convertToDTO(patient);
+        PatientDTO expectedPatientDTO = PatientMapper.INSTANCE.patientToPatientDTO(patient);
 
         PatientDTO actualPatient = patientService.getPatientByEmail("dupa@gmail.com");
 
@@ -116,7 +122,7 @@ public class MedicalServiceTest {
         String newPassword = "newpassword";
         PatientDTO existingPatient = new PatientDTO("dupa@gmail.com", "Tomek", "Nowak", "123-456-789");
 
-        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(PatientMapper.convertToEntity(existingPatient)));
+        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(PatientMapper.INSTANCE.patientDtoToPatient(existingPatient)));
 
         String result = patientService.updatePassword(email, newPassword);
 
