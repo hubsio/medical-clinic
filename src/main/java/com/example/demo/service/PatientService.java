@@ -23,17 +23,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PatientService {
     private final PatientRepository patientRepository;
+    private final PatientMapper patientMapper;
 
     public List<PatientDTO> getAllPatients() {
         return patientRepository.findAll().stream()
-                .map(PatientMapper::convertToDTO)
+                .map(patientMapper::patientToPatientDTO)
                 .collect(Collectors.toList());
     }
 
     public PatientDTO getPatientByEmail(String email) {
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with the provided email does not exist"));
-        return PatientMapper.convertToDTO(patient);
+        return patientMapper.patientToPatientDTO(patient);
     }
 
     @Transactional
@@ -48,7 +49,7 @@ public class PatientService {
         }
 
         patientRepository.save(patient);
-        return PatientMapper.convertToDTO(patient);
+        return patientMapper.patientToPatientDTO(patient);
     }
 
     @Transactional
@@ -81,7 +82,7 @@ public class PatientService {
         existingPatient.setPhoneNumber(editedPatient.getPhoneNumber());
 
         patientRepository.save(existingPatient);
-        return PatientMapper.convertToDTO(existingPatient);
+        return patientMapper.patientToPatientDTO(existingPatient);
     }
 
     @Transactional

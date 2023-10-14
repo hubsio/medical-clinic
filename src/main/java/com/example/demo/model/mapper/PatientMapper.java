@@ -2,25 +2,12 @@ package com.example.demo.model.mapper;
 
 import com.example.demo.model.Patient;
 import com.example.demo.model.dto.PatientDTO;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class PatientMapper {
-    public static PatientDTO convertToDTO(Patient patient) {
-        PatientDTO dto = new PatientDTO();
-        dto.setEmail(patient.getEmail());
-        dto.setFirstName(patient.getFirstName());
-        dto.setLastName(patient.getLastName());
-        dto.setPhoneNumber(patient.getPhoneNumber());
-        return dto;
-    }
-    public static Patient convertToEntity(PatientDTO patientDTO) {
-        Patient patient = new Patient();
-        patient.setEmail(patientDTO.getEmail());
-        patient.setFirstName(patientDTO.getFirstName());
-        patient.setLastName(patientDTO.getLastName());
-        patient.setPhoneNumber(patientDTO.getPhoneNumber());
-        return patient;
-    }
+@Mapper(componentModel = "spring")
+public interface PatientMapper {
+    PatientMapper INSTANCE = Mappers.getMapper(PatientMapper.class);
+    PatientDTO patientToPatientDTO(Patient patient);
+    Patient patientDtoToPatient(PatientDTO patientDTO);
 }
