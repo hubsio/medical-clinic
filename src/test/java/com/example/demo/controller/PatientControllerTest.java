@@ -1,8 +1,12 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.Patient;
+import com.example.demo.model.dto.CreatePatientCommandDTO;
+import com.example.demo.model.dto.EditPatientCommandDTO;
+import com.example.demo.model.entity.Patient;
 import com.example.demo.model.dto.PatientDTO;
+import com.example.demo.model.entity.User;
 import com.example.demo.repository.PatientRepository;
+import com.example.demo.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -31,14 +36,17 @@ public class PatientControllerTest {
     private ObjectMapper objectMapper;
     @Autowired
     private PatientRepository patientRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-    private PatientDTO patientDTO = new PatientDTO("dupa@gmail.com", "Tomek", "Nowak", "123-456-789");
+    private final PatientDTO patientDTO = new PatientDTO(1L,"dupa@gmail.com", "Tomek", "Nowak", "123-456-789");
 
     @BeforeEach
     public void setUp() {
-        Optional<Patient> existingPatient = patientRepository.findByEmail(patientDTO.getEmail());
+        Optional<User> existingPatient = userRepository.findByEmail(patientDTO.getEmail());
         if (existingPatient.isEmpty()) {
-            Patient patient = new Patient(1L,"dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+            User user = new User(1L, "Tomek123", "dupa@gmail.com", "123", null);
+            Patient patient = new Patient(1L, "123", "Tomek", "Nowak", "123-456-789", LocalDate.of(1990, 12, 12), user);
             patientRepository.save(patient);
         }
     }
@@ -56,17 +64,18 @@ public class PatientControllerTest {
     }
 
     @Test
-    void getPatientByEmailTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/patients/{email}", patientDTO.getEmail())
+    void getPatientByIdTest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/patients/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(patientDTO.getEmail()));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(patientDTO.getId()));
     }
 
     @Test
+    @Rollback
     void addNewPatientTest() throws Exception {
-        PatientDTO newPatient = new PatientDTO("newpatient@example.com", "John", "Doe", "987-654-321");
+        CreatePatientCommandDTO newPatient = new CreatePatientCommandDTO("123", "John", "Doe", "987-654-321", LocalDate.of(1990, 5, 15), "john_doe", "mail@gmail.com", "12345");
         mockMvc.perform(MockMvcRequestBuilders.post("/patients")
                         .content(objectMapper.writeValueAsString(newPatient))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -75,33 +84,35 @@ public class PatientControllerTest {
     }
 
     @Test
-    void deletePatientByEmailTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.delete("/patients/{email}", patientDTO.getEmail())
+    @Rollback
+    void deletePatientByIdTest() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.delete("/patients/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
+    @Rollback
     void editPatientByEmailTest() throws Exception {
-        Patient editedPatient = new Patient(1L,"dupa@gmail.com", "123123", "1234567", "Tomek123", "Nowak123", "123-456-789", LocalDate.of(1910, 12, 11));
+        EditPatientCommandDTO editedPatient = new EditPatientCommandDTO("EditedFirstName", "EditedLastName", "987-654-321", "newpassword");
 
-        mockMvc.perform(MockMvcRequestBuilders.put("/patients/{email}", patientDTO.getEmail())
+        mockMvc.perform(MockMvcRequestBuilders.put("/patients/{id}", 1L)
                         .content(objectMapper.writeValueAsString(editedPatient))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(editedPatient.getEmail()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.firstName").value(editedPatient.getFirstName()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.lastName").value(editedPatient.getLastName()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.phoneNumber").value(editedPatient.getPhoneNumber()));
     }
 
     @Test
+    @Rollback
     void updatePasswordTest() throws Exception {
         String newPassword = "newpassword";
 
-        mockMvc.perform(MockMvcRequestBuilders.patch("/patients/{email}/password", patientDTO.getEmail())
+        mockMvc.perform(MockMvcRequestBuilders.patch("/patients/{id}/password", 1L)
                         .content(newPassword)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
