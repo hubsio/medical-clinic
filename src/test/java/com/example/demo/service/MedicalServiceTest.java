@@ -4,50 +4,48 @@ import com.example.demo.exception.IllegalUserIdChangeException;
 import com.example.demo.exception.InvalidEmailException;
 import com.example.demo.exception.PatientNotFoundException;
 import com.example.demo.exception.UserAlreadyExistsException;
-import com.example.demo.model.Patient;
+import com.example.demo.model.dto.CreatePatientCommandDTO;
+import com.example.demo.model.dto.EditPatientCommandDTO;
+import com.example.demo.model.entity.Patient;
 import com.example.demo.model.dto.PatientDTO;
+import com.example.demo.model.entity.User;
 import com.example.demo.model.mapper.PatientMapper;
 import com.example.demo.repository.PatientRepository;
+import com.example.demo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class MedicalServiceTest {
     PatientRepository patientRepository;
+    UserRepository userRepository;
     PatientService patientService;
     PatientMapper patientMapper;
     @BeforeEach
     void setUp() {
         this.patientRepository = Mockito.mock(PatientRepository.class);
+        this.userRepository = Mockito.mock(UserRepository.class);
         this.patientMapper = PatientMapper.INSTANCE;
-        this.patientService = new PatientService(patientRepository, patientMapper);
+        this.patientService = new PatientService(patientRepository, patientMapper, userRepository);
     }
 
     @Test
-    void getPatientByEmail_existingPatient_shouldReturnPatient() {
-        Patient patient = new Patient();
-        patient.setEmail("dupa@gmail.com");
-        patient.setFirstName("Hubert");
-        patient.setLastName("Nowak");
+    void getPatient_existingPatient_shouldReturnPatient() {
+        Patient patient = new Patient(1L, "123", "Tomek", "Nowak", "123456789", LocalDate.of(1990, 12, 12), new User());
 
-        when(patientRepository.findByEmail("dupa@gmail.com")).thenReturn(Optional.of(patient));
+        when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
 
         PatientDTO expectedPatientDTO = PatientMapper.INSTANCE.patientToPatientDTO(patient);
-
-        PatientDTO actualPatient = patientService.getPatientByEmail("dupa@gmail.com");
+        PatientDTO actualPatient = patientService.getPatient(1L);
 
         assertEquals(expectedPatientDTO, actualPatient);
     }
@@ -55,92 +53,95 @@ public class MedicalServiceTest {
     @Test
     void getAllPatients_existingPatients_shouldReturnPatients() {
         List<Patient> expectedPatients = new ArrayList<>();
-        expectedPatients.add(new Patient(13L,"dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11)));
-        expectedPatients.add(new Patient(14L, "lol@gmail.com", "123432", "13464367", "Krzychu", "Janusz", "987-654-321", LocalDate.of(1910, 12, 11)));
+        expectedPatients.add(new Patient(1L, "123", "Tomek", "Nowak", "123-456-789", LocalDate.of(1990, 12, 12), new User()));
+        expectedPatients.add(new Patient(2L, "12345", "Krzychu", "Janusz", "987-654-321", LocalDate.of(1990, 12, 12), new User()));
 
         when(patientRepository.findAll()).thenReturn(expectedPatients);
 
         List<PatientDTO> result = patientService.getAllPatients();
 
         assertEquals(2, result.size());
-        assertEquals("dupa@gmail.com", result.get(0).getEmail());
         assertEquals("Tomek", result.get(0).getFirstName());
         assertEquals("Nowak", result.get(0).getLastName());
         assertEquals("123-456-789", result.get(0).getPhoneNumber());
 
-        assertEquals("lol@gmail.com", result.get(1).getEmail());
         assertEquals("Krzychu", result.get(1).getFirstName());
         assertEquals("Janusz", result.get(1).getLastName());
         assertEquals("987-654-321", result.get(1).getPhoneNumber());
     }
 
     @Test
-    void deletePatientByEmail_existingPatients_getPatients() {
-        Patient patient = new Patient(1L,"dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+    void deletePatient_existingPatients_getPatients() {
+        Patient patient = new Patient(1L, "123", "Tomek", "Nowak", "123456789", LocalDate.of(1990, 12, 12), new User());
 
-        when(patientRepository.findByEmail("dupa@gmail.com")).thenReturn(Optional.of(patient));
+        when(patientRepository.findById(patient.getId())).thenReturn(Optional.of(patient));
 
-        patientService.deletePatientByEmail("dupa@gmail.com");
+        patientService.deletePatient(patient.getId());
 
         verify(patientRepository, times(1)).delete(patient);
     }
 
     @Test
-    void addNewPatient_addingPatients_shouldReturnNewPatient() {
-        String email = "dupa@gmail.com";
-        Patient patient = new Patient(1L, email, "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+    void addNewPatient_validData_shouldReturnNewPatientDTO() {
+        String email = "john@example.com";
+        CreatePatientCommandDTO commandDTO = new CreatePatientCommandDTO("123456789", "John", "Doe", "123-456-789", LocalDate.of(1990, 5, 15), "john_doe", email, "password123");
 
-        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        PatientDTO result = patientService.addNewPatient(patient);
+        PatientDTO resultDTO = patientService.addNewPatient(commandDTO);
 
-        assertEquals("dupa@gmail.com", result.getEmail());
-        assertEquals("Tomek", result.getFirstName());
-        assertEquals("Nowak", result.getLastName());
-        assertEquals("123-456-789", result.getPhoneNumber());
-        verify(patientRepository, times(1)).save(patient);
+        assertEquals("john@example.com", resultDTO.getEmail());
+        assertEquals("John", resultDTO.getFirstName());
+        assertEquals("Doe", resultDTO.getLastName());
+        assertEquals("123-456-789", resultDTO.getPhoneNumber());
+        verify(patientRepository, times(1)).save(any());
     }
 
     @Test
-    void editPatientByEmail_givenValidInput_shouldEditPatient() {
-        Patient existingPatient = new Patient(1L,"dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
-        Patient editedPatient = new Patient(2L,"dupa@gmail.com", "123456", "1234567", "Romek", "Janusz", "462352432", LocalDate.of(1920, 10, 1));
+    void editPatientById_existingPatient_shouldEditPatient() {
+        long patientId = 1L;
+        Patient existingPatient = new Patient(patientId, "123", "Tomek", "Nowak", "123456789", LocalDate.of(1990, 12, 12), new User());
+        EditPatientCommandDTO editedPatient = new EditPatientCommandDTO("NewFirstName", "NewLastName", "NewPhoneNumber", "NewPassword");
 
-        when(patientRepository.findByEmail("dupa@gmail.com")).thenReturn(Optional.of(existingPatient));
+        when(patientRepository.findById(patientId)).thenReturn(Optional.of(existingPatient));
 
-        PatientDTO updates = patientService.editPatientByEmail("dupa@gmail.com", editedPatient);
+        PatientDTO updatedPatientDTO = patientService.editPatientById(patientId, editedPatient);
 
-        assertEquals("dupa@gmail.com", updates.getEmail());
-        assertEquals("Romek", updates.getFirstName());
-        assertEquals("Janusz", updates.getLastName());
-        assertEquals("462352432", updates.getPhoneNumber());
+        assertEquals("NewFirstName", updatedPatientDTO.getFirstName());
+        assertEquals("NewLastName", updatedPatientDTO.getLastName());
+        assertEquals("NewPhoneNumber", updatedPatientDTO.getPhoneNumber());
+        verify(patientRepository, times(1)).save(existingPatient);
     }
 
     @Test
     void updatePassword_existingPatient_shouldUpdatePassword() {
-        String email = "dupa@gmail.com";
+        Long patientId = 1L;
         String newPassword = "newpassword";
-        PatientDTO existingPatient = new PatientDTO("dupa@gmail.com", "Tomek", "Nowak", "123-456-789");
+        Patient existingPatient = new Patient();
+        existingPatient.setId(patientId);
+        existingPatient.setUser(new User());
 
-        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(PatientMapper.INSTANCE.patientDtoToPatient(existingPatient)));
+        when(patientRepository.findById(patientId)).thenReturn(Optional.of(existingPatient));
 
-        String result = patientService.updatePassword(email, newPassword);
+        String result = patientService.updatePassword(patientId, newPassword);
 
         assertEquals(newPassword, result);
     }
 
     @Test
-    void getPatientByEmail_nonexistentPatient_shouldThrowException() {
-        when(patientRepository.findByEmail("wrongemail@gmail.com")).thenReturn(Optional.empty());
+    void getPatient_nonexistentPatient_shouldThrowException() {
+        Long nonExistentPatientId = 100L;
 
-        PatientNotFoundException exception = assertThrows(PatientNotFoundException.class, () -> patientService.getPatientByEmail("wrongemail@gmail.com"));
+        when(patientRepository.findById(nonExistentPatientId)).thenReturn(Optional.empty());
 
-        assertEquals("Patient with the provided email does not exist", exception.getMessage());
+        PatientNotFoundException exception = assertThrows(PatientNotFoundException.class, () -> patientService.getPatient(nonExistentPatientId));
+
+        assertEquals("Patient with the provided ID does not exist", exception.getMessage());
     }
 
     @Test
     void addNewPatient_emptyEmail_shouldThrowException() {
-        Patient patient = new Patient(4L,"", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        CreatePatientCommandDTO patient = new CreatePatientCommandDTO("123456789", "Tomek", "Nowak", "123-456-789", LocalDate.of(1990, 12, 12), "tomek123", null, "password123");
 
         InvalidEmailException exception = assertThrows(InvalidEmailException.class, () -> patientService.addNewPatient(patient));
 
@@ -149,83 +150,76 @@ public class MedicalServiceTest {
 
     @Test
     void addNewPatient_existingEmail_shouldThrowException() {
-        Patient patient = new Patient(5L, "dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+        CreatePatientCommandDTO createPatientCommandDTO = new CreatePatientCommandDTO("123", "Hubert", "Nowak", "123-456-789", LocalDate.of(1990,12,12), "hubi123", "hubi123@gmail.com", "123321");
+        User user = new User(1L, "Jarek", "jarek123@gmail.com", "1321", null);
 
-        when(patientRepository.findByEmail("dupa@gmail.com")).thenReturn(Optional.of(patient));
+        when(userRepository.findByEmail("hubi123@gmail.com")).thenReturn(Optional.of(user));
 
-        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> patientService.addNewPatient(patient));
+        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> patientService.addNewPatient(createPatientCommandDTO));
 
         assertEquals("User with the provided email already exists", exception.getMessage());
     }
 
     @Test
-    void deletePatientByEmail_patientNotFound_shouldThrowException() {
-        String email = "notfoundemail@gmail.com";
+    void deletePatient_patientNotFound_shouldThrowException() {
+        Long nonExistentPatientId = 100L;
 
-        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(patientRepository.findById(nonExistentPatientId)).thenReturn(Optional.empty());
 
-        PatientNotFoundException exception = assertThrows(PatientNotFoundException.class, () -> patientService.deletePatientByEmail(email));
+        PatientNotFoundException exception = assertThrows(PatientNotFoundException.class, () -> patientService.deletePatient(nonExistentPatientId));
 
-        assertEquals("Patient with the provided email does not exist", exception.getMessage());
+        assertEquals("Patient with the provided ID does not exist", exception.getMessage());
     }
 
     @Test
-    void editPatientByEmail_patientNotFound_shouldThrowException() {
-        String nonExistingEmail = "nonexisting@example.com";
-        Patient editedPatient = new Patient();
+    void editPatientById_patientNotFound_shouldThrowException() {
+        EditPatientCommandDTO editedPatient = new EditPatientCommandDTO("FirstName", "LastName", "123456789", "password");
 
-        when(patientRepository.findByEmail(nonExistingEmail)).thenReturn(Optional.empty());
+        when(patientRepository.findById(1L)).thenReturn(Optional.empty());
 
-        PatientNotFoundException exception = assertThrows(PatientNotFoundException.class, () -> patientService.editPatientByEmail(nonExistingEmail, editedPatient));
+        PatientNotFoundException exception = assertThrows(PatientNotFoundException.class, () -> patientService.editPatientById(1L, editedPatient));
 
-        assertEquals("Patient with given email does not exist", exception.getMessage());
+        assertEquals("Patient with given ID does not exist", exception.getMessage());
     }
 
     @Test
-    void editPatientByEmail_differentIdCardNo_shouldThrowException() {
-        Patient existingPatient = new Patient(6L,"dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
-        Patient editiedPatient = new Patient(7L,"dupa@gmail.com", "123", "19876", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+    void editPatientById_nullFields_shouldThrowException() {
+        Patient existingPatient = new Patient();
+        existingPatient.setId(1L);
+        EditPatientCommandDTO editedPatient = new EditPatientCommandDTO(null, null, null, null);
 
-        when(patientRepository.findByEmail(existingPatient.getEmail())).thenReturn(Optional.of(existingPatient));
+        when(patientRepository.findById(1L)).thenReturn(Optional.of(existingPatient));
 
-        IllegalUserIdChangeException exception = assertThrows(IllegalUserIdChangeException.class, () -> patientService.editPatientByEmail(existingPatient.getEmail(), editiedPatient));
-
-        assertEquals("Changing ID number is not allowed", exception.getMessage());
-    }
-
-    @Test
-    void editPatientByEmail_nullFields_shouldThrowException() {
-        Patient existingPatient = new Patient(8L,"dupa@gmail.com", "123", "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
-        Patient editedPatient = new Patient(9L,"dupa@gmail.com", null, "1234567", null, null, null, LocalDate.of(1910, 12, 11));
-
-        when(patientRepository.findByEmail(existingPatient.getEmail())).thenReturn(Optional.of(existingPatient));
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> patientService.editPatientByEmail(existingPatient.getEmail(), editedPatient));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> patientService.editPatientById(1L, editedPatient));
 
         assertEquals("Patient data cannot be null", exception.getMessage());
     }
 
     @Test
-    void updatePassword_patientNotFound_passwordUpdateFailed() {
-        String email = "dupa@gmail.com";
-        String newPassword = "newpassword";
+    void updatePassword_patientNotFound_shouldThrowException() {
+        when(patientRepository.findById(1L)).thenReturn(Optional.empty());
 
-        when(patientRepository.findByEmail(email)).thenReturn(Optional.empty());
+        PatientNotFoundException exception = assertThrows(PatientNotFoundException.class, () -> patientService.updatePassword(1L, "newpassword"));
 
-        PatientNotFoundException exception = assertThrows(PatientNotFoundException.class, () -> patientService.updatePassword(email, newPassword));
+        assertEquals("Patient with given ID does not exist", exception.getMessage());
+    }
+    @Test
+    void updatePassword_nullPassword_shouldThrowException() {
+        Patient existingPatient = new Patient();
+        existingPatient.setId(1L);
+        when(patientRepository.findById(1L)).thenReturn(Optional.of(existingPatient));
 
-        assertEquals("Patient with given email does not exist", exception.getMessage());
+        InvalidEmailException exception = assertThrows(InvalidEmailException.class, () -> patientService.updatePassword(1L, null));
+
+        assertEquals("New password cannot be empty", exception.getMessage());
     }
 
     @Test
-    void updatePassword_emptyNewPassword_shouldThrowException() {
-        String email = "dupa@gmail.com";
-        String newPassword = "";
-        Patient existingPatient = new Patient(10L, email, newPassword, "1234567", "Tomek", "Nowak", "123-456-789", LocalDate.of(1910, 12, 11));
+    void updatePassword_emptyPassword_shouldThrowException() {
+        Patient existingPatient = new Patient();
+        when(patientRepository.findById(1L)).thenReturn(Optional.of(existingPatient));
 
-        when(patientRepository.findByEmail(email)).thenReturn(Optional.of(existingPatient));
-
-        InvalidEmailException exception = assertThrows(InvalidEmailException.class, () -> patientService.updatePassword(email, newPassword));
+        InvalidEmailException exception = assertThrows(InvalidEmailException.class, () -> patientService.updatePassword(1L, ""));
 
         assertEquals("New password cannot be empty", exception.getMessage());
     }

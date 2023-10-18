@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.Patient;
+import com.example.demo.model.dto.CreatePatientCommandDTO;
+import com.example.demo.model.dto.EditPatientCommandDTO;
 import com.example.demo.model.dto.PatientDTO;
 import com.example.demo.service.PatientService;
 import lombok.RequiredArgsConstructor;
@@ -19,28 +20,28 @@ public class PatientController {
         return patientService.getAllPatients();
     }
 
-    @GetMapping("/{email}")
-    public PatientDTO getPatientByEmail(@PathVariable String email) {
-        return patientService.getPatientByEmail(email);
+    @GetMapping("/{id}")
+    public PatientDTO getPatient(@PathVariable Long id) {
+        return patientService.getPatient(id);
     }
 
     @PostMapping
-    public PatientDTO addNewPatient(@RequestBody Patient patient) {
+    public PatientDTO addNewPatient(@RequestBody CreatePatientCommandDTO patient) {
         return patientService.addNewPatient(patient);
     }
 
-    @DeleteMapping("/{email}")
-    public void deletePatientByEmail(@PathVariable String email) {
-        patientService.deletePatientByEmail(email);
+    @DeleteMapping("/{id}")
+    public void deletePatient(@PathVariable Long id) {
+        patientService.deletePatient(id);
     }
 
-    @PutMapping("/{email}")
-    public PatientDTO editPatientByEmail(@PathVariable String email, @RequestBody Patient editedPatient) {
-        return patientService.editPatientByEmail(email, editedPatient);
+    @PutMapping("/{id}")
+    public PatientDTO editPatient(@PathVariable Long id, @RequestBody EditPatientCommandDTO editedPatient) {
+        return patientService.editPatientById(id, editedPatient);
     }
 
-    @PatchMapping("/{email}/password")
-    public String updatePassword(@PathVariable String email, @RequestBody String newPassword) {
-        return patientService.updatePassword(email, newPassword);
+    @PatchMapping("/{id}/password")
+    public String updatePassword(@PathVariable Long id, @RequestBody String newPassword) {
+        return patientService.updatePassword(id, newPassword);
     }
 }
