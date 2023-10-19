@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.exception.IllegalUserIdChangeException;
 import com.example.demo.exception.InvalidEmailException;
 import com.example.demo.exception.PatientNotFoundException;
 import com.example.demo.exception.UserAlreadyExistsException;
@@ -18,14 +17,13 @@ import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class MedicalServiceTest {
+public class PatientServiceTest {
     PatientRepository patientRepository;
     UserRepository userRepository;
     PatientService patientService;
@@ -151,7 +149,7 @@ public class MedicalServiceTest {
     @Test
     void addNewPatient_existingEmail_shouldThrowException() {
         CreatePatientCommandDTO createPatientCommandDTO = new CreatePatientCommandDTO("123", "Hubert", "Nowak", "123-456-789", LocalDate.of(1990,12,12), "hubi123", "hubi123@gmail.com", "123321");
-        User user = new User(1L, "Jarek", "jarek123@gmail.com", "1321", null);
+        User user = new User(1L, "Jarek", "jarek123@gmail.com", "1321", null, null);
 
         when(userRepository.findByEmail("hubi123@gmail.com")).thenReturn(Optional.of(user));
 
@@ -192,7 +190,7 @@ public class MedicalServiceTest {
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> patientService.editPatientById(1L, editedPatient));
 
-        assertEquals("Patient data cannot be null", exception.getMessage());
+        assertEquals("Data cannot be null", exception.getMessage());
     }
 
     @Test

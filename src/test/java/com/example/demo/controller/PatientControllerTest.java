@@ -45,7 +45,7 @@ public class PatientControllerTest {
     public void setUp() {
         Optional<User> existingPatient = userRepository.findByEmail(patientDTO.getEmail());
         if (existingPatient.isEmpty()) {
-            User user = new User(1L, "Tomek123", "dupa@gmail.com", "123", null);
+            User user = new User(1L, "Tomek123", "dupa@gmail.com", "123", null, null);
             Patient patient = new Patient(1L, "123", "Tomek", "Nowak", "123-456-789", LocalDate.of(1990, 12, 12), user);
             patientRepository.save(patient);
         }
@@ -94,7 +94,7 @@ public class PatientControllerTest {
 
     @Test
     @Rollback
-    void editPatientByEmailTest() throws Exception {
+    void editPatientByIdTest() throws Exception {
         EditPatientCommandDTO editedPatient = new EditPatientCommandDTO("EditedFirstName", "EditedLastName", "987-654-321", "newpassword");
 
         mockMvc.perform(MockMvcRequestBuilders.put("/patients/{id}", 1L)
@@ -111,7 +111,6 @@ public class PatientControllerTest {
     @Rollback
     void updatePasswordTest() throws Exception {
         String newPassword = "newpassword";
-
         mockMvc.perform(MockMvcRequestBuilders.patch("/patients/{id}/password", 1L)
                         .content(newPassword)
                         .contentType(MediaType.APPLICATION_JSON))
