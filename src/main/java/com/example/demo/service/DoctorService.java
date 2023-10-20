@@ -50,8 +50,8 @@ public class DoctorService {
             throw new UserAlreadyExistsException("User with the provided email already exists");
         }
         Doctor doctor = Doctor.create(command);
-        doctorRepository.save(doctor);
-        return doctorMapper.doctorToDoctorDTO(doctor);
+        Doctor savedDoctor = doctorRepository.save(doctor);
+        return doctorMapper.doctorToDoctorDTO(savedDoctor);
     }
 
     @Transactional

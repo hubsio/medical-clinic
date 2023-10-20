@@ -20,6 +20,4 @@ public class User {
     private Patient patient;
     @OneToOne(mappedBy = "user")
     private Doctor doctor;
-
-
 }
