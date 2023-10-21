@@ -73,7 +73,7 @@ public class PatientService {
                 editedPatient.getLastName() == null ||
                 editedPatient.getPassword() == null ||
                 editedPatient.getPhoneNumber() == null) {
-            throw new IllegalArgumentException("Patient data cannot be null");
+            throw new IllegalArgumentException("Data cannot be null");
         }
 
         existingPatient.setFirstName(editedPatient.getFirstName());

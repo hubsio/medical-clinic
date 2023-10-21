@@ -26,8 +26,19 @@ public class GeneralExceptionHandler {
     public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown error");
     }
+
     @ExceptionHandler(IllegalUserIdChangeException.class)
     public ResponseEntity<String> handleIllegalUserIdChangeException(IllegalUserIdChangeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(DoctorNotFoundException.class)
+    public ResponseEntity<String> handleDoctorNotFoundException(DoctorNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalDoctorIdChangeException.class)
+    public ResponseEntity<String> handleIllegalDoctorIdChangeException(IllegalDoctorIdChangeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 }

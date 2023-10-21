@@ -4,10 +4,10 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class MediaclException extends RuntimeException {
+public class MedicalException extends RuntimeException {
     private final HttpStatus httpStatus;
 
-    public MediaclException(String message, HttpStatus httpStatus) {
+    public MedicalException(String message, HttpStatus httpStatus) {
         super(message);
         this.httpStatus = httpStatus;
     }

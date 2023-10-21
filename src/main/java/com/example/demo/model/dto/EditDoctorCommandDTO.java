@@ -5,9 +5,10 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class EditPatientCommandDTO {
+public class EditDoctorCommandDTO {
     private String firstName;
     private String lastName;
-    private String phoneNumber;
     private String password;
+    private String phoneNumber;
+    private String specialization;
 }
