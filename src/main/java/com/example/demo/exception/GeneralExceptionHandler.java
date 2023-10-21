@@ -41,4 +41,8 @@ public class GeneralExceptionHandler {
     public ResponseEntity<String> handleIllegalDoctorIdChangeException(IllegalDoctorIdChangeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+    @ExceptionHandler(HealthcareFacilityNotFoundException.class)
+    public ResponseEntity<String> handleHealthcareFacilityNotFoundException(HealthcareFacilityNotFoundException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }
