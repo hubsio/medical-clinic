@@ -1,8 +1,10 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.dto.HealthcareFacilityDTO;
 import com.example.demo.model.entity.HealthcareFacility;
 import com.example.demo.service.HealthcareFacilityService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,18 +16,19 @@ public class HealthcareFacilityController {
     public final HealthcareFacilityService healthcareFacilityService;
 
     @GetMapping
-    public List<HealthcareFacility> getAllFacilities() {
+    public List<HealthcareFacilityDTO> getAllFacilities() {
         return healthcareFacilityService.getAllFacilities();
     }
 
     @GetMapping("/{id}")
-    public HealthcareFacility getFacility(@PathVariable Long id) {
+    public HealthcareFacilityDTO getFacility(@PathVariable Long id) {
         return healthcareFacilityService.getFacility(id);
     }
 
     @PostMapping
-    public HealthcareFacility createFacility(@RequestBody HealthcareFacility facility) {
-        return healthcareFacilityService.createHealthcareFacility(facility);
+    public ResponseEntity<HealthcareFacilityDTO> createFacility(@RequestBody HealthcareFacilityDTO facilityDTO) {
+        HealthcareFacilityDTO createdFacility = healthcareFacilityService.createHealthcareFacility(facilityDTO);
+        return ResponseEntity.ok(createdFacility);
     }
 
     @PutMapping("/{facilityId}/add-doctor/{doctorId}")
