@@ -45,4 +45,14 @@ public class GeneralExceptionHandler {
     public ResponseEntity<String> handleHealthcareFacilityNotFoundException(HealthcareFacilityNotFoundException exception) {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(IllegalVisitOperationException.class)
+    public ResponseEntity<String> handleIllegalVisitOperationExceptionException(IllegalVisitOperationException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(VisitNotFoundException.class)
+    public ResponseEntity<String> handleVisitNotFoundException(VisitNotFoundException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
 }

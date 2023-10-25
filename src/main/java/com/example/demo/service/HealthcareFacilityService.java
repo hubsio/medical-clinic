@@ -44,7 +44,7 @@ public class HealthcareFacilityService {
         HealthcareFacility facility = healthcareFacilityRepository.findById(facilityId)
                 .orElseThrow(() -> new HealthcareFacilityNotFoundException("Healthcare Facility not found"));
         Doctor doctor = doctorRepository.findById(doctorId)
-                .orElseThrow(() -> new HealthcareFacilityNotFoundException("Doctor not found"));
+                .orElseThrow(() -> new DoctorNotFoundException("Doctor not found"));
         facility.getDoctors().add(doctor);
         healthcareFacilityRepository.save(facility);
     }

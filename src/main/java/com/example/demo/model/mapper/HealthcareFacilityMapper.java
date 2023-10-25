@@ -16,6 +16,8 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface HealthcareFacilityMapper {
+    HealthcareFacilityMapper INSTANCE = Mappers.getMapper(HealthcareFacilityMapper.class);
+
     @Mapping(source = "doctors", target = "doctorIds", qualifiedByName = "mapDoctor")
     HealthcareFacilityDTO convertFacilityToDto (HealthcareFacility healthcareFacility);
     @Mapping(source = "doctorIds", target = "doctors", qualifiedByName = "mapDoctorIds")
