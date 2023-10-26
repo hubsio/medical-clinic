@@ -38,7 +38,6 @@ public class PatientControllerTest {
     private PatientRepository patientRepository;
     @Autowired
     private UserRepository userRepository;
-
     private final PatientDTO patientDTO = new PatientDTO(1L,"dupa@gmail.com", "Tomek", "Nowak", "123-456-789");
 
     @BeforeEach

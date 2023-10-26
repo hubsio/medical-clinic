@@ -12,13 +12,13 @@ import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.HealthcareFacilityRepository;
 import com.example.demo.repository.PatientRepository;
 import com.example.demo.repository.VisitRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +29,7 @@ public class VisitService {
     private final HealthcareFacilityRepository healthcareFacilityRepository;
     private final PatientRepository patientRepository;
 
-
+    @Transactional
     public VisitDTO addAvailableVisit(CreateVisitCommand command) {
         if (command.getStartDateTime().isBefore(LocalDateTime.now())) {
             throw new IllegalVisitOperationException("Cannot create a visit for a past date.");
@@ -66,6 +66,7 @@ public class VisitService {
         return visitMapper.visitToVisitDto(visit);
     }
 
+    @Transactional
     public VisitDTO bookVisit(BookVisitRequest request) {
         Long visitId = request.getVisitId();
         Long patientId = request.getPatientId();

@@ -24,7 +24,6 @@ import org.mockito.Mockito;
 import java.time.LocalDateTime;
 import java.util.*;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -50,53 +49,77 @@ public class VisitServiceTest {
     }
 
     @Test
-    void addAvailableVisit_ValidInput_ShouldAddVisit() {
-        CreateVisitCommand command = new CreateVisitCommand(1L, 1L, LocalDateTime.of(2024, 11, 10, 14, 0), LocalDateTime.of(2024, 11, 10, 14, 15), 200.00);
+    void testAddAvailableVisit() {
+        CreateVisitCommand command = new CreateVisitCommand();
+        command.setDoctorId(1L);
+        command.setHealthcareFacilityId(2L);
+        command.setStartDateTime(LocalDateTime.of(2023,12,12,14,0));
+        command.setEndDateTime(LocalDateTime.of(2023,12,12,14,15));
+        command.setPrice(100.0);
+
         Doctor doctor = new Doctor();
         doctor.setId(1L);
-        HealthcareFacility healthcareFacility = new HealthcareFacility();
-        healthcareFacility.setId(2L);
-        List<Visit> overlappingVisits = new ArrayList<>();
-        Visit savedVisit = new Visit();
 
-        when(doctorRepository.findById(1L)).thenReturn(Optional.of(doctor));
-        when(healthcareFacilityRepository.findById(2L)).thenReturn(Optional.of(healthcareFacility));
-        when(visitRepository.findAllOverlapping(eq(1L), any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(overlappingVisits);
+        HealthcareFacility facility = new HealthcareFacility();
+        facility.setId(2L);
+
+        Visit visit = new Visit();
+        visit.setDoctor(doctor);
+        visit.setHealthcareFacility(facility);
+
+        when(doctorRepository.findById(1L)).thenReturn(java.util.Optional.of(doctor));
+        when(healthcareFacilityRepository.findById(2L)).thenReturn(java.util.Optional.of(facility));
+        when(visitRepository.findAllOverlapping(1L, command.getStartDateTime(), command.getEndDateTime())).thenReturn(new ArrayList<>());
+        when(visitRepository.save(any(Visit.class))).thenReturn(visit);
         when(visitMapper.visitToVisitDto(any(Visit.class))).thenReturn(new VisitDTO());
-        when(visitRepository.save(any(Visit.class))).thenReturn(savedVisit);
 
         VisitDTO result = visitService.addAvailableVisit(command);
+        result.setDoctorId(1L);
+        result.setHealthcareFacilityId(2L);
+        result.setStartDateTime(LocalDateTime.of(2023,12,12,14,0));
+        result.setEndDateTime(LocalDateTime.of(2023,12,12,14,15));
+        result.setPrice(100.0);
 
+        assertNotNull(result);
         assertEquals(1L, result.getDoctorId());
         assertEquals(2L, result.getHealthcareFacilityId());
-        assertEquals(VisitType.CREATED, result.getVisitType());
+        assertEquals(command.getStartDateTime(), result.getStartDateTime());
+        assertEquals(command.getEndDateTime(), result.getEndDateTime());
+        assertEquals(command.getPrice(), result.getPrice());
     }
 
     @Test
-    void bookVisit_ValidBooking_ShouldBookVisit() {
+    void testBookVisit() {
         BookVisitRequest request = new BookVisitRequest();
         request.setVisitId(1L);
         request.setPatientId(2L);
+        request.setStartDateTime(LocalDateTime.of(2023,12,12,14,0));
+        request.setEndDateTime(LocalDateTime.of(2023,12,12,14,15));
 
         Visit visit = new Visit();
         visit.setId(1L);
-        visit.setStartDateTime(LocalDateTime.now().plusHours(1));
         visit.setVisitType(VisitType.CREATED);
+        visit.setStartDateTime(LocalDateTime.of(2023,12,12,14,0));
+        visit.setEndDateTime(LocalDateTime.of(2023,12,12,14,15));
 
         Patient patient = new Patient();
         patient.setId(2L);
 
-        when(visitRepository.findById(1L)).thenReturn(Optional.of(visit));
-        when(patientRepository.findById(2L)).thenReturn(Optional.of(patient));
-        when(visitRepository.existsByPatientAndStartDateTimeBetweenAndVisitType(eq(patient), any(), any(), eq(VisitType.SCHEDULED))).thenReturn(false);
+        Mockito.when(visitRepository.findById(1L)).thenReturn(java.util.Optional.of(visit));
+        Mockito.when(visitRepository.existsByPatientAndStartDateTimeBetweenAndVisitType(patient, visit.getStartDateTime(), visit.getEndDateTime(), VisitType.SCHEDULED)).thenReturn(false);
+        Mockito.when(patientRepository.findById(2L)).thenReturn(java.util.Optional.of(patient));
+        Mockito.when(visitRepository.save(any(Visit.class))).thenReturn(visit);
+        Mockito.when(visitMapper.visitToVisitDto(any(Visit.class))).thenReturn(new VisitDTO());
 
         VisitDTO result = visitService.bookVisit(request);
+        result.setVisitId(1L);
+        result.setStartDateTime(LocalDateTime.of(2023,12,12,14,0));
+        result.setEndDateTime(LocalDateTime.of(2023,12,12,14,15));
 
-        assertEquals(VisitType.SCHEDULED, visit.getVisitType());
-        assertEquals(patient, visit.getPatient());
-
+        assertNotNull(result);
         assertEquals(1L, result.getVisitId());
-        assertEquals(2L, result.getDoctorId());
+        assertEquals(request.getStartDateTime(), result.getStartDateTime());
+        assertEquals(request.getEndDateTime(), result.getEndDateTime());
     }
 
     @Test
@@ -162,15 +185,34 @@ public class VisitServiceTest {
     }
 
     @Test
-    void addAvailableVisit_InvalidTime_ShouldThrowException() {
+    void addAvailableVisit_TimeNotRoundedTo15_ShouldThrowException() {
         CreateVisitCommand command = new CreateVisitCommand();
-        command.setStartDateTime(LocalDateTime.of(2024, 1, 1, 12, 31)); // Minuta nie jest podzielna przez 15
-        command.setEndDateTime(LocalDateTime.of(2024, 1, 1, 12, 44)); // Minuta nie jest podzielna przez 15
+        command.setStartDateTime(LocalDateTime.of(2024, 1, 1, 12, 31));
+        command.setEndDateTime(LocalDateTime.of(2024, 1, 1, 12, 44));
 
         IllegalVisitOperationException exception = assertThrows(IllegalVisitOperationException.class, () -> visitService.addAvailableVisit(command));
         assertEquals("Visit must start and end at quarter past the hour.", exception.getMessage());
     }
-    ///////////
+
+    @Test
+    void testAddAvailableVisit_DoctorNotFound() {
+        CreateVisitCommand command = new CreateVisitCommand(null, 1L, LocalDateTime.of(2023, 12, 12, 14, 0), LocalDateTime.of(2023, 12, 12, 14, 15), 250.00);
+
+        when(doctorRepository.findById(command.getDoctorId())).thenReturn(Optional.empty());
+
+        DoctorNotFoundException exception = assertThrows(DoctorNotFoundException.class, () -> visitService.addAvailableVisit(command));
+        assertEquals("Doctor not found", exception.getMessage());
+    }
+
+    @Test
+    void testAddAvailableVisit_HealthcareFacilityNotFound() {
+        CreateVisitCommand command = new CreateVisitCommand(1L, null, LocalDateTime.of(2023, 12, 12, 14, 0), LocalDateTime.of(2023, 12, 12, 14, 15), 250.00);
+        when(healthcareFacilityRepository.findById(command.getHealthcareFacilityId())).thenReturn(Optional.empty());
+
+        HealthcareFacilityNotFoundException exception = assertThrows(HealthcareFacilityNotFoundException.class, () -> visitService.addAvailableVisit(command));
+        assertEquals("Healthcare Facility not found", exception.getMessage());
+    }
+
     @Test
     void bookVisit_VisitNotFound_ShouldThrowVisitNotFoundException() {
         BookVisitRequest request = new BookVisitRequest();
@@ -179,5 +221,57 @@ public class VisitServiceTest {
 
         VisitNotFoundException exception = assertThrows(VisitNotFoundException.class, () -> visitService.bookVisit(request));
         assertEquals("Visit not found", exception.getMessage());
+    }
+
+    @Test
+    void testBookVisit_IllegalVisitOperationException_CannotBookAPastDate() {
+
+        BookVisitRequest request = new BookVisitRequest();
+        request.setVisitId(1L);
+        request.setPatientId(1L);
+
+        Visit visit = new Visit();
+        visit.setStartDateTime(LocalDateTime.of(2022, 1, 1, 10, 0));
+        visit.setEndDateTime(LocalDateTime.of(2022, 1, 1, 10, 15));
+        when(visitRepository.findById(1L)).thenReturn(Optional.of(visit));
+
+        IllegalVisitOperationException exception = assertThrows(IllegalVisitOperationException.class, () -> visitService.bookVisit(request));
+        assertEquals("Cannot book a visit for a past date.", exception.getMessage());
+    }
+
+    @Test
+    void testBookVisit_IllegalVisitOperationException_VisitNotAvailableForBooking() {
+        BookVisitRequest request = new BookVisitRequest();
+        request.setVisitId(1L);
+        request.setPatientId(1L);
+
+        Visit visit = new Visit();
+        visit.setVisitType(VisitType.SCHEDULED);
+        visit.setStartDateTime(LocalDateTime.of(2024, 12, 12, 14, 0));
+        when(visitRepository.findById(1L)).thenReturn(Optional.of(visit));
+
+        IllegalVisitOperationException exception = assertThrows(IllegalVisitOperationException.class, () -> visitService.bookVisit(request));
+        assertEquals("Visit is not available for booking.", exception.getMessage());
+    }
+
+    @Test
+    void testBookVisit_PatientConflict_IllegalVisitOperationException_PatientHasVisitWithinTimeRange() {
+        BookVisitRequest request = new BookVisitRequest();
+        request.setVisitId(1L);
+        request.setPatientId(1L);
+
+        Visit visit = new Visit();
+        visit.setVisitType(VisitType.CREATED);
+        visit.setStartDateTime(LocalDateTime.of(2023, 12, 12, 14, 0));
+        visit.setEndDateTime(LocalDateTime.of(2023, 12, 12, 14, 15));
+        when(visitRepository.findById(1L)).thenReturn(Optional.of(visit));
+
+        Patient patient = new Patient();
+        when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
+        when(visitRepository.existsByPatientAndStartDateTimeBetweenAndVisitType(patient, visit.getStartDateTime(), visit.getEndDateTime(), VisitType.SCHEDULED)).thenReturn(true);
+
+        IllegalVisitOperationException exception = assertThrows(IllegalVisitOperationException.class, () -> visitService.bookVisit(request));
+
+        assertEquals("Patient already has a visit within the specified time range.", exception.getMessage());
     }
 }

@@ -1,6 +1,7 @@
 package com.example.demo.model.dto;
 
 import com.example.demo.model.VisitType;
+import com.example.demo.model.entity.Visit;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,5 +22,4 @@ public class VisitDTO {
     private LocalDateTime endDateTime;
     private VisitType visitType;
     private Long visitId;
-
 }

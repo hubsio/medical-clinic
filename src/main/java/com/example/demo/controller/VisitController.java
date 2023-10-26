@@ -23,15 +23,13 @@ import java.util.List;
 public class VisitController {
     private final VisitService visitService;
     @PostMapping
-    public ResponseEntity<VisitDTO> addAvailableVisit(@RequestBody CreateVisitCommand createVisitCommand) {
-        VisitDTO visitDTO = visitService.addAvailableVisit(createVisitCommand);
-        return ResponseEntity.ok(visitDTO);
+    public VisitDTO addAvailableVisit(@RequestBody CreateVisitCommand createVisitCommand) {
+        return visitService.addAvailableVisit(createVisitCommand);
     }
 
     @PostMapping("/book")
-    public ResponseEntity<VisitDTO> bookVisit(@RequestBody BookVisitRequest bookVisitRequest) {
-        VisitDTO bookedVisit = visitService.bookVisit(bookVisitRequest);
-        return ResponseEntity.ok(bookedVisit);
+    public VisitDTO bookVisit(@RequestBody BookVisitRequest bookVisitRequest) {
+        return visitService.bookVisit(bookVisitRequest);
     }
 
     @GetMapping("/patient/{patientId}")
@@ -40,8 +38,7 @@ public class VisitController {
     }
 
     @GetMapping("/doctor/{doctorId}")
-    public ResponseEntity<List<VisitDTO>> getDoctorVisits(@PathVariable Long doctorId) {
-        List<VisitDTO> doctorVisits = visitService.getDoctorVisits(doctorId);
-        return ResponseEntity.ok(doctorVisits);
+    public List<VisitDTO> getDoctorVisits(@PathVariable Long doctorId) {
+        return visitService.getDoctorVisits(doctorId);
     }
 }
