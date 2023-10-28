@@ -12,6 +12,7 @@ import com.example.demo.repository.HealthcareFacilityRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
+//
 public class HealthcareFacilityTest {
     HealthcareFacilityRepository healthcareFacilityRepository;
     DoctorRepository doctorRepository;
@@ -34,7 +35,7 @@ public class HealthcareFacilityTest {
     void setUp() {
         this.healthcareFacilityRepository = Mockito.mock(HealthcareFacilityRepository.class);
         this.doctorRepository = Mockito.mock(DoctorRepository.class);
-        this.healthcareFacilityMapper = HealthcareFacilityMapper.INSTANCE;
+        this.healthcareFacilityMapper = Mappers.getMapper(HealthcareFacilityMapper.class);
         this.healthcareFacilityService = new HealthcareFacilityService(healthcareFacilityRepository, doctorRepository, healthcareFacilityMapper);
     }
 

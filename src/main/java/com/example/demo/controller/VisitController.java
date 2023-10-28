@@ -22,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VisitController {
     private final VisitService visitService;
+    
     @PostMapping
     public VisitDTO addAvailableVisit(@RequestBody CreateVisitCommand createVisitCommand) {
         return visitService.addAvailableVisit(createVisitCommand);

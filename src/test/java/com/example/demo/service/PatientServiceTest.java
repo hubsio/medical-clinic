@@ -13,6 +13,7 @@ import com.example.demo.repository.PatientRepository;
 import com.example.demo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
@@ -32,7 +33,7 @@ public class PatientServiceTest {
     void setUp() {
         this.patientRepository = Mockito.mock(PatientRepository.class);
         this.userRepository = Mockito.mock(UserRepository.class);
-        this.patientMapper = PatientMapper.INSTANCE;
+        this.patientMapper = Mappers.getMapper(PatientMapper.class);
         this.patientService = new PatientService(patientRepository, patientMapper, userRepository);
     }
 
@@ -42,7 +43,7 @@ public class PatientServiceTest {
 
         when(patientRepository.findById(1L)).thenReturn(Optional.of(patient));
 
-        PatientDTO expectedPatientDTO = PatientMapper.INSTANCE.patientToPatientDTO(patient);
+        PatientDTO expectedPatientDTO = patientMapper.patientToPatientDTO(patient);
         PatientDTO actualPatient = patientService.getPatient(1L);
 
         assertEquals(expectedPatientDTO, actualPatient);

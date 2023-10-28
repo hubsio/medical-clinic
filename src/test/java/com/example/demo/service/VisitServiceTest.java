@@ -206,7 +206,10 @@ public class VisitServiceTest {
 
     @Test
     void testAddAvailableVisit_HealthcareFacilityNotFound() {
-        CreateVisitCommand command = new CreateVisitCommand(1L, null, LocalDateTime.of(2023, 12, 12, 14, 0), LocalDateTime.of(2023, 12, 12, 14, 15), 250.00);
+        Doctor doctor = new Doctor();
+        doctor.setId(1L);
+        CreateVisitCommand command = new CreateVisitCommand(doctor.getId(), null, LocalDateTime.of(2023, 12, 12, 14, 0), LocalDateTime.of(2023, 12, 12, 14, 15), 250.00);
+        when(doctorRepository.findById(command.getDoctorId())).thenReturn(Optional.of(doctor));
         when(healthcareFacilityRepository.findById(command.getHealthcareFacilityId())).thenReturn(Optional.empty());
 
         HealthcareFacilityNotFoundException exception = assertThrows(HealthcareFacilityNotFoundException.class, () -> visitService.addAvailableVisit(command));

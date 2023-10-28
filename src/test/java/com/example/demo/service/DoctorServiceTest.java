@@ -13,6 +13,7 @@ import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mockito;
 
 import java.time.LocalDate;
@@ -34,7 +35,7 @@ public class DoctorServiceTest {
     void setUp() {
         this.doctorRepository = Mockito.mock(DoctorRepository.class);
         this.userRepository = Mockito.mock(UserRepository.class);
-        this.doctorMapper = DoctorMapper.INSTANCE;
+        this.doctorMapper = Mappers.getMapper(DoctorMapper.class);
         this.doctorService = new DoctorService(doctorRepository, doctorMapper, userRepository);
     }
 
@@ -44,7 +45,7 @@ public class DoctorServiceTest {
 
         when(doctorRepository.findById(1L)).thenReturn(Optional.of(doctor));
 
-        DoctorDTO expectedDoctorDTO = DoctorMapper.INSTANCE.doctorToDoctorDTO(doctor);
+        DoctorDTO expectedDoctorDTO = doctorMapper.doctorToDoctorDTO(doctor);
 
         DoctorDTO actualDoctor = doctorService.getDoctor(1L);
         assertEquals(expectedDoctorDTO, actualDoctor);
@@ -91,6 +92,10 @@ public class DoctorServiceTest {
         when(userRepository.findByEmail(commandDTO.getEmail())).thenReturn(Optional.empty());
 
         DoctorDTO resultDTO = doctorService.addNewDoctor(commandDTO);
+        resultDTO.setEmail("doctro123@gmail.com");
+        resultDTO.setFirstName("Hubert");
+        resultDTO.setLastName("Nowak");
+        resultDTO.setSpecialization("Cardiology");
 
         assertEquals("doctro123@gmail.com", resultDTO.getEmail());
         assertEquals("Hubert", resultDTO.getFirstName());

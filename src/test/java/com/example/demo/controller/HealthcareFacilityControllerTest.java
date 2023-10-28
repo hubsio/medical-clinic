@@ -78,9 +78,8 @@ public class HealthcareFacilityControllerTest {
     @Test
     @Rollback
     void createFacility() throws Exception {
-        HealthcareFacilityDTO newFacility = new HealthcareFacilityDTO(1L, "NewFacility", null);
         mockMvc.perform(MockMvcRequestBuilders.post("/healthcare-facilities")
-                        .content(objectMapper.writeValueAsString(newFacility))
+                        .content(objectMapper.writeValueAsString(healthcareFacilityDTO))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(MockMvcResultMatchers.status().isOk());

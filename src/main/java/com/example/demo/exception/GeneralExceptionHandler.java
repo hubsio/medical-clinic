@@ -47,7 +47,7 @@ public class GeneralExceptionHandler {
     }
 
     @ExceptionHandler(IllegalVisitOperationException.class)
-    public ResponseEntity<String> handleIllegalVisitOperationExceptionException(IllegalVisitOperationException exception) {
+    public ResponseEntity<String> handleIllegalVisitOperationException(IllegalVisitOperationException exception) {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
