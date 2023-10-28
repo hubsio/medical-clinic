@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface DoctorMapper {
-    DoctorMapper INSTANCE = Mappers.getMapper(DoctorMapper.class);
     @Mapping(source = "user.email", target = "email")
     DoctorDTO doctorToDoctorDTO(Doctor doctor);
     Doctor doctorDtoToDoctor(DoctorDTO doctorDTO);

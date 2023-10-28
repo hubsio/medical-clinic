@@ -9,7 +9,6 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PatientMapper {
-    PatientMapper INSTANCE = Mappers.getMapper(PatientMapper.class);
     @Mapping(source = "user.email", target = "email")
     PatientDTO patientToPatientDTO(Patient patient);
     Patient patientDtoToPatient(PatientDTO patientDTO);
