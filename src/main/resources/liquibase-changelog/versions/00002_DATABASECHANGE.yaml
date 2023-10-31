@@ -1,0 +1,98 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: Hubert
+      changes:
+        - createTable:
+            tableName: DOCTOR
+            columns:
+              - column:
+                  name: id
+                  type: Long
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_doctor_id
+                    nullable: false
+              - column:
+                  name: firstName
+                  type: varchar(30)
+              - column:
+                  name: lastName
+                  type: varchar(30)
+              - column:
+                  name: phoneNumber
+                  type: varchar(30)
+              - column:
+                  name: birthday
+                  type: DATE
+              - column:
+                  name: specialization
+                  type: varchar(30)
+
+  - changeSet:
+      id: 3
+      author: Hubert
+      changes:
+        - createTable:
+            tableName: HEALTHCARE_FACILITY
+            columns:
+              - column:
+                  name: id
+                  type: Long
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_healthcare_facility_id
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(30)
+
+  - changeSet:
+      id: 4
+      author: Hubert
+      changes:
+        - createTable:
+            tableName: USER
+            columns:
+              - column:
+                  name: id
+                  type: Long
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_data_id
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(30)
+              - column:
+                  name: email
+                  type: varchar(30)
+                  constraints:
+                    unique: true
+                    uniqueConstraintsName: unique_user_data_email
+              - column:
+                  name: password
+                  type: varchar(30)
+        - addColumn:
+            tableName: PATIENT
+            columns:
+              - column:
+                  name: user_id
+                  type: Long
+                  constraints:
+                    foreignKeyName: fk_patient_user
+                    references: USER(id)
+                    unique: true
+        - addColumn:
+            tableName: DOCTOR
+            columns:
+              - column:
+                  name: user_id
+                  type: Long
+                  constraints:
+                    foreignKeyName: fk_doctor_user
+                    references: USER(id)
+                    unique: true
