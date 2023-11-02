@@ -62,11 +62,9 @@ public class DoctorController {
 
     @Operation(summary = "Delete doctor", tags = "Doctor")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "OK",
-                    content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                            schema = @Schema(implementation = DoctorDTO.class))}),
-            @ApiResponse(responseCode = "400", description = "Invalid request data", content = @Content(schema = @Schema(implementation = String.class, description = "Invalid request data"))),
-            @ApiResponse(responseCode = "404", description = "Doctor with the provided ID does not exist", content = @Content(schema = @Schema(implementation = String.class, description = "Doctor not found")))
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Invalid request data"),
+            @ApiResponse(responseCode = "404", description = "Doctor with the provided ID does not exist")
     })
     @DeleteMapping("/{id}")
     public void deleteDoctor(@PathVariable Long id) {
