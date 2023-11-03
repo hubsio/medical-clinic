@@ -15,19 +15,19 @@ databaseChangeLog:
                     primaryKeyName: pk_doctor_id
                     nullable: false
               - column:
-                  name: firstName
+                  name: FIRST_NAME
                   type: varchar(30)
               - column:
-                  name: lastName
+                  name: LAST_NAME
                   type: varchar(30)
               - column:
-                  name: phoneNumber
+                  name: PHONE_NUMBER
                   type: varchar(30)
               - column:
-                  name: birthday
+                  name: BIRTHDAY
                   type: DATE
               - column:
-                  name: specialization
+                  name: SPECIALIZATION
                   type: varchar(30)
 
   - changeSet:
@@ -46,7 +46,7 @@ databaseChangeLog:
                     primaryKeyName: pk_healthcare_facility_id
                     nullable: false
               - column:
-                  name: name
+                  name: NAME
                   type: varchar(30)
 
   - changeSet:
@@ -54,7 +54,7 @@ databaseChangeLog:
       author: Hubert
       changes:
         - createTable:
-            tableName: USER
+            tableName: USERS
             columns:
               - column:
                   name: id
@@ -65,16 +65,16 @@ databaseChangeLog:
                     primaryKeyName: pk_user_data_id
                     nullable: false
               - column:
-                  name: username
+                  name: USERNAME
                   type: varchar(30)
               - column:
-                  name: email
+                  name: EMAIL
                   type: varchar(30)
                   constraints:
                     unique: true
                     uniqueConstraintsName: unique_user_data_email
               - column:
-                  name: password
+                  name: PASSWORD
                   type: varchar(30)
         - addColumn:
             tableName: PATIENT
@@ -84,7 +84,7 @@ databaseChangeLog:
                   type: Long
                   constraints:
                     foreignKeyName: fk_patient_user
-                    references: USER(id)
+                    references: USERS(id)
                     unique: true
         - addColumn:
             tableName: DOCTOR
@@ -94,5 +94,5 @@ databaseChangeLog:
                   type: Long
                   constraints:
                     foreignKeyName: fk_doctor_user
-                    references: USER(id)
+                    references: USERS(id)
                     unique: true
