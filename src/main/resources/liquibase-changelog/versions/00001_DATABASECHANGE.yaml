@@ -15,20 +15,20 @@ databaseChangeLog:
                     primaryKeyName: pk_patient_id
                     nullable: false
               - column:
-                  name: idCardNo
+                  name: ID_CARD_NO
                   type: varchar(50)
                   constraints:
                     unique: true
                     uniqueConstraintName: unique_patient_id_card_no
               - column:
-                  name: firstName
+                  name: FIRST_NAME
                   type: varchar(30)
               - column:
-                  name: lastName
+                  name: LAST_NAME
                   type: varchar(50)
               - column:
-                  name: phoneNumber
+                  name: PHONE_NUMBER
                   type: varchar(30)
               - column:
-                  name: birthday
+                  name: BIRTHDAY
                   type: DATE
