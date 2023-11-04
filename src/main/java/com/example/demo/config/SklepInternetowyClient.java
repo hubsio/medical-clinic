@@ -3,43 +3,40 @@ package com.example.demo.config;
 import com.example.demo.model.dto.OrderDTO;
 import com.example.demo.model.dto.ProductDTO;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@FeignClient(name = "sklep-internetowy-api", url = "http://localhost:8081/api")
+@FeignClient(value = "sklep-internetowy-api", url = "http://sklep-internetowy.com/api")
 public interface SklepInternetowyClient {
 
-    @RequestMapping(method = RequestMethod.GET, value = "/products")
+    @GetMapping("/products")
     List<ProductDTO> getProducts();
 
-    @RequestMapping(method = RequestMethod.GET, value = "/products/{productId}", produces = "application/json")
+    @GetMapping("/products/{productId}")
     ProductDTO getProductById(@PathVariable("productId") Long productId);
 
-    @RequestMapping(method = RequestMethod.POST, value = "/products", consumes = "application/json")
+    @PostMapping("/products")
     void createProduct(@RequestBody ProductDTO product);
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/products/{productId}", consumes = "application/json")
+    @PutMapping("/products/{productId}")
     void updateProduct(@PathVariable("productId") Long productId, @RequestBody ProductDTO product);
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/products/{productId}")
+    @DeleteMapping("/products/{productId}")
     void deleteProduct(@PathVariable("productId") Long productId);
 
-    @RequestMapping(method = RequestMethod.GET, value = "/orders")
+    @GetMapping("/orders")
     List<OrderDTO> getOrders();
 
-    @RequestMapping(method = RequestMethod.GET, value = "/orders/{orderId}", produces = "application/json")
+    @GetMapping("/orders/{orderId}")
     OrderDTO getOrderById(@PathVariable("orderId") Long orderId);
 
-    @RequestMapping(method = RequestMethod.POST, value = "/orders", consumes = "application/json")
+    @PostMapping("/orders")
     void createOrder(@RequestBody OrderDTO order);
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/orders/{orderId}", consumes = "application/json")
+    @PutMapping("/orders/{orderId}")
     void updateOrder(@PathVariable("orderId") Long orderId, @RequestBody OrderDTO order);
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/orders/{orderId}")
+    @DeleteMapping("/orders/{orderId}")
     void cancelOrder(@PathVariable("orderId") Long orderId);
 }

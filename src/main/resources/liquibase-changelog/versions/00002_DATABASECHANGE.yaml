@@ -80,7 +80,7 @@ databaseChangeLog:
             tableName: PATIENT
             columns:
               - column:
-                  name: user_id
+                  name: USER_ID
                   type: Long
                   constraints:
                     foreignKeyName: fk_patient_user
@@ -90,9 +90,83 @@ databaseChangeLog:
             tableName: DOCTOR
             columns:
               - column:
-                  name: user_id
+                  name: USER_ID
                   type: Long
                   constraints:
                     foreignKeyName: fk_doctor_user
                     references: USERS(id)
                     unique: true
+
+  - changeSet:
+      id: 5
+      author: Hubert
+      changes:
+        - createTable:
+            tableName: HEALTHCARE_FACILITY_DOCTOR
+            columns:
+              - column:
+                  name: id
+                  type: Long
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_healthcare_facility_doctor_id
+                    nullable: false
+              - column:
+                  name: healthcare_facility_id
+                  type: Long
+                  constraints:
+                    foreignKeyName: fk_healthcare_facility
+                    references: HEALTHCARE_FACILITY(id)
+              - column:
+                  name: doctor_id
+                  type: Long
+                  constraints:
+                    foreignKeyName: fk_doctor
+                    references: DOCTOR(id)
+
+  - changeSet:
+      id: 6
+      author: Hubert
+      changes:
+        - createTable:
+            tableName: VISIT
+            columns:
+              - column:
+                  name: id
+                  type: Long
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_visit_id
+                    nullable: false
+              - column:
+                  name: doctor_id
+                  type: Long
+                  constraints:
+                    foreignKeyName: fk_visit_doctor
+                    references: DOCTOR(id)
+              - column:
+                  name: healthcare_facility_id
+                  type: Long
+                  constraints:
+                    foreignKeyName: fk_visit_healthcare_facility
+                    references: HEALTHCARE_FACILITY(id)
+              - column:
+                  name: patient_id
+                  type: Long
+                  constraints:
+                    foreignKeyName: fk_visit_patient
+                    references: PATIENT(id)
+              - column:
+                  name: START_DATE_TIME
+                  type: TIMESTAMP
+              - column:
+                  name: END_DATE_TIME
+                  type: TIMESTAMP
+              - column:
+                  name: VISIT_TYPE
+                  type: varchar(30)
+              - column:
+                  name: PRICE
+                  type: double
