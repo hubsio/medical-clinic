@@ -29,6 +29,7 @@ public class DoctorService {
     private final UserRepository userRepository;
 
     public List<DoctorDTO> getAllDoctors() {
+        System.out.println("Hi");
         return doctorRepository.findAll().stream()
                 .map(doctorMapper::doctorToDoctorDTO)
                 .collect(Collectors.toList());
