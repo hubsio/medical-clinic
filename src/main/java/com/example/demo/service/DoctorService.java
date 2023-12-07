@@ -30,23 +30,19 @@ public class DoctorService {
 
     public List<DoctorDTO> getAllDoctors() {
         System.out.println("Hi");
-        log.info("Getting all doctors");
         return doctorRepository.findAll().stream()
                 .map(doctorMapper::doctorToDoctorDTO)
                 .collect(Collectors.toList());
     }
 
     public DoctorDTO getDoctor(Long id) {
-        log.info("Getting doctor with ID: {}", id);
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new DoctorNotFoundException("Doctor with the provided ID does not exist"));
-        log.info("Doctor with ID {} found", id);
         return doctorMapper.doctorToDoctorDTO(doctor);
     }
 
     @Transactional
     public DoctorDTO addNewDoctor(CreateDoctorCommandDTO command) {
-        log.info("Add new doctor {}", command.toString());
         String email = command.getEmail();
         if (email == null || email.isEmpty()) {
             throw new InvalidEmailException("Invalid email address");
@@ -56,14 +52,12 @@ public class DoctorService {
             throw new UserAlreadyExistsException("User with the provided email already exists");
         }
         Doctor doctor = Doctor.create(command);
-        doctorRepository.save(doctor);
-        log.info("New doctor added with ID: {}", doctor.getId());
-        return doctorMapper.doctorToDoctorDTO(doctor);
+        Doctor savedDoctor = doctorRepository.save(doctor);
+        return doctorMapper.doctorToDoctorDTO(savedDoctor);
     }
 
     @Transactional
     public void deleteDoctor(Long id) {
-        log.info("Deleting doctor with ID: {}", id);
         Doctor doctorToDelete = doctorRepository.findById(id)
                 .orElseThrow(() -> new DoctorNotFoundException("Doctor with the provided ID does not exist"));
 
@@ -72,7 +66,6 @@ public class DoctorService {
 
     @Transactional
     public DoctorDTO editDoctorById(Long id, EditDoctorCommandDTO editedDoctor) {
-        log.info("Editing doctor with ID: {}", id);
         Doctor existingDoctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new DoctorNotFoundException("Doctor with given ID does not exist"));
 
@@ -94,7 +87,6 @@ public class DoctorService {
 
     @Transactional
     public String updatePassword(Long id, String newPassword) {
-        log.info("Updating password for doctor with ID: {}", id);
         Doctor existingDoctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new DoctorNotFoundException("Doctor with given ID does not exist"));
 
@@ -104,7 +96,6 @@ public class DoctorService {
         existingDoctor.getUser().setPassword(newPassword);
 
         doctorRepository.save(existingDoctor);
-        log.info("Password updated for doctor with ID: {}", id);
         return newPassword;
     }
 }
